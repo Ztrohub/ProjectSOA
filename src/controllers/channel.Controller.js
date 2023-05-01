@@ -1,5 +1,3 @@
-const joiValidate = require('../utils/joiValidate');
-
 const { faker } = require('@faker-js/faker');
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');

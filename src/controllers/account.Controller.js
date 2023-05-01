@@ -3,7 +3,6 @@ const createError = require('http-errors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { Account }  = require('../models');
-const joiValidate  = require('../utils/joiValidate');
 
 module.exports = {
     registerAccount: async (req, res, next) => {
@@ -100,7 +99,7 @@ module.exports = {
 
         const token = jwt.sign({
             username: account.username
-        }, process.env.JWT_SECRET, {
+        }, process.env.PRIVATE_KEY, {
             expiresIn: '1d'
         })
 

@@ -30,7 +30,12 @@ module.exports = {
             return next(createError.BadRequest("Channel ID is required"))
         }
 
-        const id = base64url.decode(req.params.id)
+        let id = ""
+        try {
+            id = base64url.decode(req.params.id)
+        } catch (error) {
+            return next(createError.Unauthorized("Invalid channel ID"))
+        }
 
         const channel = await Channel.findOne({
             where: {
