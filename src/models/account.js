@@ -50,7 +50,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Account',
-    underscored: false,
+    underscored: true,
     paranoid: true,
     tableName: 'accounts',
     timestamps: true,
