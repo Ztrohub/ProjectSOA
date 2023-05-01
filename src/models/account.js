@@ -38,20 +38,25 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    accountType: {
+    account_type: {
       type: DataTypes.ENUM('free', 'premium'),
       allowNull: false,
+    },
+    credit: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      defaultValue: 0
     }
   }, {
     sequelize,
     modelName: 'Account',
-    underscored: true,
+    underscored: false,
     paranoid: true,
     tableName: 'accounts',
     timestamps: true,
     name: {
-      singular: 'account',
-      plural: 'accounts'
+      singular: 'Account',
+      plural: 'Account'
     }
   });
   return Account;

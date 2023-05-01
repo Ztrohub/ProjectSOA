@@ -27,6 +27,11 @@ module.exports = {
         type: Sequelize.ENUM('free', 'premium'),
         allowNull: false,
       },
+      credit: {
+        type: Sequelize.BIGINT,
+        allowNull: false,
+        defaultValue: 0
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE

@@ -34,25 +34,30 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    accessToken: {
+    user_prefix: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'US###'
+    },
+    access_token: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       allowNull: false
     },
-    accountUsername: {
+    account_username: {
       type: DataTypes.STRING,
       allowNull: false
-    }
+    },
   }, {
     sequelize,
     modelName: 'Channel',
-    underscored: true,
+    underscored: false,
     paranoid: true,
     tableName: 'channels',
     timestamps: true,
     name: {
-      singular: 'channel',
-      plural: 'channels'
+      singular: 'Channel',
+      plural: 'Channel'
     }
   });
   return channel;

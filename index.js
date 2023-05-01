@@ -10,12 +10,18 @@ const app = express()
 const PORT = process.env.PORT
 const baseRouter = express.Router()
 const mainRouter = require('./src/routes')
+const { notFound, errorHandler } = require('./src/middlewares/ErrorHandling')
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+// ROUTES
 mainRouter(baseRouter)
 app.use('/api/v1', baseRouter)
+
+// ERROR HANDLING
+app.use(notFound)
+app.use(errorHandler)
 
 const initApp = async () => {
     try {

@@ -24,24 +24,24 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       autoIncrement: true
     },
-    accId: {
+    acc_id: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    channelId: {
+    channel_id: {
       type: DataTypes.STRING,
       allowNull: false
     },
   }, {
     sequelize,
     modelName: 'User',
-    underscored: true,
+    underscored: false,
     paranoid: true,
     tableName: 'users',
     timestamps: true,
     name: {
-      singular: 'user',
-      plural: 'users'
+      singular: 'User',
+      plural: 'User'
     }
   });
   return user;

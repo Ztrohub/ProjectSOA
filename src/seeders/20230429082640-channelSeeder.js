@@ -1,4 +1,7 @@
 const { faker } = require('@faker-js/faker');
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
@@ -30,7 +33,8 @@ module.exports = {
         await queryInterface.bulkInsert('Channels', [{
           id: faker.datatype.uuid(),
           name: faker.internet.domainWord().replace('-', ' '),
-          access_token: faker.datatype.uuid(),
+          user_prefix: 'US###',
+          access_token: bcrypt.hashSync(`r-${crypto.randomBytes(16).toString('hex')}`, 10),
           account_username: account.username,
           created_at: new Date(),
           updated_at: new Date()

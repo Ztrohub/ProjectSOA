@@ -16,6 +16,7 @@ module.exports = {
         name: `${firstName} ${lastName}`,
         password: bcrypt.hashSync('password', 10),
         account_type: faker.helpers.arrayElement(['free', 'premium']),
+        credit: faker.finance.amount(0, 100, 0) * 1000,
         created_at: new Date(),
         updated_at: new Date()
       }

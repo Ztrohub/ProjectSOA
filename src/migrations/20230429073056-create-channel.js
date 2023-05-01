@@ -14,6 +14,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      user_prefix: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: 'US###'
+      },
       access_token: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
