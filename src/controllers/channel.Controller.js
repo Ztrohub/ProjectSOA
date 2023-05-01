@@ -32,7 +32,15 @@ module.exports = {
             })
         })
 
-        await joiValidate(schema, req.body, next)
+        try {
+            await schema.validateAsync(req.body, {
+                abortEarly: false,
+                convert: false
+            })
+        } catch (error) {
+            if (error.isJoi === true) error.status = 422
+            return next(error)
+        }
 
         const access_token = `r-${crypto.randomBytes(16).toString('hex')}`
 
@@ -90,7 +98,15 @@ module.exports = {
             'object.xor': 'name and id cannot be present at the same time'
         })
 
-        await joiValidate(schema, req.query, next)
+        try {
+            await schema.validateAsync(req.query, {
+                abortEarly: false,
+                convert: false
+            })
+        } catch (error) {
+            if (error.isJoi === true) error.status = 422
+            return next(error)
+        }
 
         let channels = []
         if (req.query.id) {

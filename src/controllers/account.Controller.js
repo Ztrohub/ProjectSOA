@@ -39,7 +39,15 @@ module.exports = {
             })
         })
 
-        await joiValidate(schema, req.body, next)
+        try {
+            await schema.validateAsync(req.body, {
+                abortEarly: false,
+                convert: false
+            })
+        } catch (error) {
+            if (error.isJoi === true) error.status = 422
+            return next(error)
+        }
 
         const account = await Account.create({
             username: req.body.username,
@@ -70,7 +78,15 @@ module.exports = {
             password: Joi.string().required()
         })
 
-        await joiValidate(schema, req.body, next)
+        try {
+            await schema.validateAsync(req.body, {
+                abortEarly: false,
+                convert: false
+            })
+        } catch (error) {
+            if (error.isJoi === true) error.status = 422
+            return next(error)
+        }
 
         const account = await Account.findOne({
             where: {
@@ -134,7 +150,15 @@ module.exports = {
             }
         })
 
-        await joiValidate(schema, req.body, next)
+        try {
+            await schema.validateAsync(req.body, {
+                abortEarly: false,
+                convert: false
+            })
+        } catch (error) {
+            if (error.isJoi === true) error.status = 422
+            return next(error)
+        }
 
         if (req.body.email) {
             account.email = req.body.email
@@ -171,7 +195,15 @@ module.exports = {
             credit: Joi.number().required().min(10000)
         })
 
-        await joiValidate(schema, req.body, next)
+        try {
+            await schema.validateAsync(req.body, {
+                abortEarly: false,
+                convert: false
+            })
+        } catch (error) {
+            if (error.isJoi === true) error.status = 422
+            return next(error)
+        }
 
         account.credit += req.body.credit
 
