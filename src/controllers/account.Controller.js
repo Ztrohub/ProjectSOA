@@ -38,8 +38,9 @@ module.exports = {
             })
         })
 
+        let value;
         try {
-            await schema.validateAsync(req.body, {
+            value = await schema.validateAsync(req.body, {
                 abortEarly: false,
                 convert: false
             })
@@ -49,10 +50,10 @@ module.exports = {
         }
 
         const account = await Account.create({
-            username: req.body.username,
-            email: req.body.email,
-            name: req.body.name,
-            password: bcrypt.hashSync(req.body.password, 10),
+            username: value.username,
+            email: value.email,
+            name: value.name,
+            password: bcrypt.hashSync(value.password, 10),
             account_type: 'free',
             credit: 0
         })
@@ -77,8 +78,9 @@ module.exports = {
             password: Joi.string().required()
         })
 
+        let value;
         try {
-            await schema.validateAsync(req.body, {
+            value = await schema.validateAsync(req.body, {
                 abortEarly: false,
                 convert: false
             })
@@ -89,11 +91,11 @@ module.exports = {
 
         const account = await Account.findOne({
             where: {
-                username: req.body.username
+                username: value.username
             }
         })
 
-        if (!account || !bcrypt.compareSync(req.body.password, account.password)) {
+        if (!account || !bcrypt.compareSync(value.password, account.password)) {
             return next(createError.NotFound('Username or password is incorrect'))
         }
 
@@ -124,6 +126,8 @@ module.exports = {
         const schema = Joi.object({
             email: Joi.string().optional().trim().email()
                 .external(async (value) => {
+                    if(!value) return value
+
                     const user = await Account.findOne({
                         where: {
                             email: value
@@ -136,21 +140,31 @@ module.exports = {
                 }),
             name: Joi.string().optional(),
             password: Joi.string().optional().min(8).max(32),
-            password_confirmation: Joi.any().equal(Joi.ref('password')).optional().messages({
-                'any.only': 'Password confirmation does not match with password'
-            })
-        }).with('password', 'password_confirmation').messages({
-            'object.with': (error) => {
-                if (error.context.peers.includes('password_confirmation')){
-                    return 'Password confirmation is required'
-                } else {
-                    return 'Password is required'
-                }
+            password_confirmation: Joi.string()
+        }).custom((value, helpers) => {
+            const password = value.password;
+            const password_confirmation = value.password_confirmation;
+            
+            if (password && !password_confirmation) {
+                return helpers.message('Password confirmation is required')
             }
-        })
 
+            if (!password && password_confirmation) {
+                return helpers.message('Password is required')
+            }
+
+            if (password && password_confirmation && password !== password_confirmation) {
+                return helpers.message('Password confirmation does not match with password')
+            }
+          
+            return value
+          }).or('email', 'name', 'password', 'password_confirmation').messages({
+            'object.missing': 'At least one of email, name, or password is required'
+        });
+
+        let value;
         try {
-            await schema.validateAsync(req.body, {
+            value = await schema.validateAsync(req.body, {
                 abortEarly: false,
                 convert: false
             })
@@ -158,23 +172,27 @@ module.exports = {
             if (error.isJoi === true) error.status = 422
             return next(error)
         }
-
+        
+        let update = []
         if (req.body.email) {
-            account.email = req.body.email
+            account.email = value.email
+            update.push('Email')
         }
 
         if (req.body.name) {
-            account.name = req.body.name
+            account.name = value.name
+            update.push('Name')
         }
 
         if (req.body.password) {
-            account.password = bcrypt.hashSync(req.body.password, 10)
+            account.password = bcrypt.hashSync(value.password, 10)
+            update.push('Password')
         }
 
         await account.save()
 
         return res.status(200).json({
-            message: 'Account updated',
+            message: `${update.join(', ')} update success`,
             data: {
                 username: account.username,
                 email: account.email,
@@ -194,17 +212,18 @@ module.exports = {
             credit: Joi.number().required().min(10000)
         })
 
+        let value;
         try {
-            await schema.validateAsync(req.body, {
+            value = await schema.validateAsync(req.body, {
                 abortEarly: false,
-                convert: false
+                convert: true
             })
         } catch (error) {
             if (error.isJoi === true) error.status = 422
             return next(error)
         }
 
-        account.credit += req.body.credit
+        account.credit += value.credit
 
         await account.save()
 
@@ -215,7 +234,7 @@ module.exports = {
                 email: account.email,
                 name: account.name,
                 account_type: account.account_type,
-                credit: account.credit,
+                credit: account.credit.toString(),
                 created_at: account.created_at,
                 updated_at: account.updated_at
             }

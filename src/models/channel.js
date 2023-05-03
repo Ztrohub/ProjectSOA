@@ -12,12 +12,12 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       channel.belongsTo(models.Account, {
-        foreignKey: 'accountUsername',
+        foreignKey: 'account_username',
         as: 'account'
       });
 
       channel.hasMany(models.User, {
-        foreignKey: 'channelId',
+        foreignKey: 'channel_id',
         as: 'users'
       });
     }

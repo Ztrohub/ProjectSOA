@@ -13,7 +13,7 @@ module.exports = {
         const count = await account.countChannels()
 
         if (account.account_type === 'free' && count === 1) {
-            throw createError.Forbidden('Free account can only create one channel')
+            return next(createError.Forbidden('Free account can only create one channel. Please upgrade your account to create more channels'))
         }
 
         const schema = joi.object({
@@ -52,10 +52,10 @@ module.exports = {
         return res.status(201).json({
             message: 'Channel created successfully! Save your access token. It will not be shown again.',
             data: {
+                access_token: access_token,
                 id: base64url(channel.id),
                 name: channel.name,
                 user_prefix: channel.user_prefix,
-                access_token: access_token,
                 account_username: channel.account_username,
                 created_at: channel.created_at,
                 updated_at: channel.updated_at
@@ -75,10 +75,10 @@ module.exports = {
         return res.status(200).json({
             message: 'Access token generated successfully! Save your access token. It will not be shown again.',
             data: {
+                access_token: access_token,
                 id: base64url(channel.id),
                 name: channel.name,
                 user_prefix: channel.user_prefix,
-                access_token: access_token,
                 account_username: channel.account_username,
                 created_at: channel.created_at,
                 updated_at: channel.updated_at
@@ -92,8 +92,8 @@ module.exports = {
         const schema = joi.object({
             name: joi.string().optional(),
             id: joi.string().optional(),
-        }).xor('name', 'id').messages({
-            'object.xor': 'name and id cannot be present at the same time'
+        }).nand('name', 'id').messages({
+            'object.nand': '"name" and "id" cannot be used together'
         })
 
         try {
@@ -131,22 +131,26 @@ module.exports = {
             channels = await account.getChannels()
         }
 
-        if (channels.length == 0){
-            next(createError.NotFound('No channels found'))
+        if (channels.length === 0){
+            return next(createError.NotFound('No channels found'))
         }
 
         return res.status(200).json({
             message: 'Channels retrieved successfully!',
-            data: channels.map(channel => {
-                return {
-                    id: base64url(channel.id),
-                    name: channel.name,
-                    user_prefix: channel.user_prefix,
-                    account_username: channel.account_username,
-                    created_at: channel.created_at,
-                    updated_at: channel.updated_at
+            data: {
+                    length: channels.length,
+                    channels: await Promise.all(channels.map(async (channel) => {
+                        return {
+                            id: base64url(channel.id),
+                            name: channel.name,
+                            user_prefix: channel.user_prefix,
+                            user_count: await channel.countUsers(),
+                            account_username: channel.account_username,
+                            created_at: channel.created_at,
+                            updated_at: channel.updated_at
+                        }
+                    }))
                 }
-            })
         })
     },
 
