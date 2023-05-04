@@ -8,7 +8,8 @@
     "start-prod": "cross-env NODE_ENV=production node index.js",
     "build-dev": "cross-env NODE_ENV=development sequelize-cli db:drop && cross-env NODE_ENV=development sequelize-cli db:create && cross-env NODE_ENV=development sequelize-cli db:migrate && cross-env NODE_ENV=development sequelize-cli db:seed:all",
     "build-prod": "cross-env NODE_ENV=production sequelize-cli db:drop && cross-env NODE_ENV=production sequelize-cli db:create && cross-env NODE_ENV=production sequelize-cli db:migrate && cross-env NODE_ENV=production sequelize-cli db:seed:all",
-    "test": ""
+    "test-dev": "npm run build-dev && node -e \"console.clear()\" && (run-p start-dev test-dev-start)",
+    "test-dev-start": "start cmd /k \"cd /d %cd% && postman login --with-api-key PMAK-64532e8e033675760a6c5588-9b632c51c507189c5912b56981fbc6dcc1 && postman collection run 24524579-491ea67e-9b9a-4042-aeed-94b78d5602eb"
   },
   "repository": {
     "type": "git",
@@ -41,6 +42,7 @@
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
     "nodemon": "^2.0.22",
+    "npm-run-all": "^4.1.5",
     "sequelize-cli": "^6.6.0"
   }
 }
