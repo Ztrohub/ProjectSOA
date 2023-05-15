@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { Account }  = require('../models');
+const { Account, Channel }  = require('../models');
 const base64url = require('base64url');
 const createError = require('http-errors');
 
