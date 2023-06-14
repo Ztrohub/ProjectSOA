@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class user extends Model {
+  class review extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,42 +11,50 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      user.belongsTo(models.Channel, {
-        foreignKey: 'channel_id',
-        as: 'channel'
-      });
-      user.hasMany(models.Review, {
+      review.belongsTo(models.User, {
         foreignKey: 'user_id',
-        as: 'reviews'
+        as: 'user'
       });
     }
   }
-  user.init({
+  review.init({
     id: {
       type: DataTypes.BIGINT,
       primaryKey: true,
       allowNull: false,
       autoIncrement: true
     },
-    acc_id: {
-      type: DataTypes.STRING,
+    user_id: {
+      type: DataTypes.BIGINT,
       allowNull: false
     },
-    channel_id: {
-      type: DataTypes.STRING,
+    game_id: {
+      type: DataTypes.BIGINT,
       allowNull: false
+    },
+    rating: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    review: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    screenshot: {
+      type: DataTypes.STRING,
+      allowNull: true
     },
   }, {
     sequelize,
-    modelName: 'User',
+    modelName: 'Review',
     underscored: true,
     paranoid: true,
-    tableName: 'users',
+    tableName: 'reviews',
     timestamps: true,
     name: {
-      singular: 'User',
-      plural: 'User'
+      singular: 'Review',
+      plural: 'Review'
     }
   });
-  return user;
+  return review;
 };

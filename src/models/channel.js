@@ -40,8 +40,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 'US###'
     },
     access_token: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.STRING,
       allowNull: false
     },
     account_username: {

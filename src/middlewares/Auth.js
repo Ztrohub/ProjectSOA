@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { Account, Channel }  = require('../models');
 const base64url = require('base64url');
+const bcrypt = require('bcrypt');
 const createError = require('http-errors');
 
 module.exports = {
@@ -55,6 +56,36 @@ module.exports = {
         if (req.channel.account_username !== req.account.username) {
             return next(createError.Forbidden("You are not the owner of this channel"))
         }
+
+        next()
+    },
+
+    channelAccessCheck: async (req, res, next) => {
+        const token = req.headers['access-token'];
+        
+        if (!token) {
+            return next(createError.Unauthorized("Access token is required. Started with 'r-'"))
+        }
+
+        if (!bcrypt.compareSync(token, req.channel.access_token)) {
+            return next(createError.Unauthorized("Invalid access token. Started with 'r-'"))
+        }
+
+        next()
+    },
+
+    userAuth: async (req, res, next) => {
+        const user = req.channel.getUsers({
+            where: {
+                acc_id: req.params.acc_id
+            }
+        })
+
+        if (!user) {
+            return next(createError.NotFound("User not found"))
+        }
+
+        req.user = user
 
         next()
     }

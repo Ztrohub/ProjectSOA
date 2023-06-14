@@ -2,36 +2,38 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('channels', {
+    await queryInterface.createTable('reviews', {
       id: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
+        type: Sequelize.BIGINT,
         primaryKey: true,
         allowNull: false,
-        autoIncrement: false
+        autoIncrement: true
       },
-      name: {
-        type: Sequelize.STRING,
+      user_id: {
+        type: Sequelize.BIGINT,
         allowNull: false
       },
-      user_prefix: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: 'US###'
-      },
-      access_token: {
-        type: Sequelize.STRING,
+      game_id: {
+        type: Sequelize.BIGINT,
         allowNull: false
       },
-      account_username: {
-        type: Sequelize.STRING,
+      rating: {
+        type: Sequelize.INTEGER(1),
         allowNull: false
       },
-      created_at: {
+      review: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      screenshot: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      createdAt: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updated_at: {
+      updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
       },
@@ -42,6 +44,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('channels');
+    await queryInterface.dropTable('reviews');
   }
 };

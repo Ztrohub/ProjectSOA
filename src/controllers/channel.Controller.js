@@ -4,6 +4,8 @@ const bcrypt = require('bcrypt');
 const joi = require('joi').extend(require('@joi/date'));
 const base64url = require('base64url');
 const Sequelize = require('sequelize');
+const db = require('../models');
+const sequelize = db.sequelize;
 const createError = require('http-errors');
 
 module.exports = {
@@ -71,6 +73,10 @@ module.exports = {
         await channel.update({
             access_token: bcrypt.hashSync(access_token, 10)
         })
+
+        console.log(access_token)
+        console.log(channel.access_token)
+        console.log(bcrypt.compareSync(access_token, channel.access_token))
 
         return res.status(200).json({
             message: 'Access token generated successfully! Save your access token. It will not be shown again.',
@@ -158,7 +164,193 @@ module.exports = {
         const channel = req.channel
 
         const schema = joi.object({
-            ammount: joi.number().integer().min(1).optional(),
+            amount: joi.number().integer().min(1).optional(),
+        })
+
+        try {
+            await schema.validateAsync(req.body)
+        } catch (error) {
+            if (error.isJoi === true) error.status = 422
+            return next(error)
+        }
+
+        const amount = req.body.amount || 1
+
+        const userPrefix = channel.user_prefix
+
+        const temp = await sequelize.query(`SELECT COUNT(*) FROM users WHERE channel_id = :channelId`, {
+            type: sequelize.QueryTypes.SELECT,
+            replacements: {
+                channelId: channel.id
+            }
+        })
+
+        let last_count = parseInt(temp[0]['COUNT(*)'])
+        const users = []
+
+        for (var i = 0; i < amount; i++) {
+            last_count += 1
+            const formattedCount = String(last_count).padStart(userPrefix.match(/#/g).length, '0');
+            console.log(formattedCount)
+            const user = await channel.createUser({
+                acc_id: userPrefix.replace(new RegExp('#{1,' + userPrefix.match(/#+/)[0].length + '}', 'g'), formattedCount)
+            })
+
+            users.push(user.acc_id)
+        }
+
+        return res.status(201).json({
+            message: 'Users created successfully!',
+            data: {
+                channel_id: base64url(channel.id),
+                channel_name: channel.name,
+                user_prefix: channel.user_prefix,
+                user_count: await channel.countUsers(),
+                created_user_count: parseInt(amount),
+                created_user: users.join(', ')
+            }
+        })
+    },
+
+    getUsers: async (req, res, next) => {
+        const channel = req.channel
+
+        const schema = joi.object({
+            acc_id: joi.string().optional(),
+        })
+
+
+        try {
+            await schema.validateAsync(req.query, {
+                abortEarly: false,
+                convert: false
+            })
+        } catch (error) {
+            if (error.isJoi === true) error.status = 422
+            return next(error)
+        }
+
+        if (!acc_id){
+            const users = await channel.getUsers()
+
+            return res.status(200).json({
+                message: 'Users retrieved successfully!',
+                data: {
+                    channel_id: base64url(channel.id),
+                    channel_name: channel.name,
+                    user_prefix: channel.user_prefix,
+                    user_count: await channel.countUsers(),
+                    users: await Promise.all(users.map(async (user) => {
+                        return {
+                            acc_id: user.acc_id,
+                            review_count: await user.countReviews(),
+                            last_review: await user.getReviews({
+                                limit: 1,
+                                order: [['created_at', 'DESC']]
+                            }).then(reviews => {
+                                if (reviews.length === 0) return "No reviews yet"
+                                return reviews[0].created_at
+                            }),
+                            created_at: user.created_at,
+                            updated_at: user.updated_at,
+                            is_deleted: user.deleted_at !== null
+                        }
+                    }
+                    ))
+                }
+            })
+        }
+
+        const acc_id = req.query.acc_id
+
+        const user = await channel.getUser({
+            where: {
+                acc_id: acc_id
+            }
+        })
+
+        if (!user){
+            return next(createError.NotFound('User not found'))
+        }
+
+        return res.status(200).json({
+            message: 'User retrieved successfully!',
+            data: {
+                channel_id: base64url(channel.id),
+                channel_name: channel.name,
+                user_prefix: channel.user_prefix,
+                user_count: await channel.countUsers(),
+                user: {
+                    acc_id: user.acc_id,
+                    review_count: await user.countReviews(),
+                    last_review: await user.getReviews({
+                        limit: 1,
+                        order: [['created_at', 'DESC']]
+                    }).then(reviews => {
+                        if (reviews.length === 0) return "No reviews yet"
+                        return reviews[0].created_at
+                    }
+                    ),
+                    created_at: user.created_at,
+                    updated_at: user.updated_at,
+                    is_deleted: user.deleted_at !== null
+                }
+            }
+        })
+    },
+
+    deleteUser: async (req, res, next) => {
+        const channel = req.channel
+
+        const schema = joi.object({
+            acc_id: joi.string().required(),
+        })
+
+        try {
+            await schema.validateAsync(req.params)
+        } catch (error) {
+            if (error.isJoi === true) error.status = 422
+            return next(error)
+        }
+
+        const acc_id = req.body.acc_id
+
+        const user = await channel.getUser({
+            where: {
+                acc_id: acc_id
+            }
+        })
+
+        if (!user){
+            return next(createError.NotFound('User not found'))
+        }
+
+        await user.destroy()
+
+        return res.status(200).json({
+            message: 'User deleted successfully!',
+            data: {
+                channel_id: base64url(channel.id),
+                channel_name: channel.name,
+                user_prefix: channel.user_prefix,
+                user_count: await channel.countUsers(),
+                user: {
+                    acc_id: user.acc_id,
+                    review_count: await user.countReviews(),
+                    last_review: await user.getReviews({
+                        limit: 1,
+                        order: [['created_at', 'DESC']]
+                    }).then(reviews => {
+                        if (reviews.length === 0) return "No reviews yet"
+                        return reviews[0].created_at
+                    }
+                    ),
+                    created_at: user.created_at,
+                    updated_at: user.updated_at,
+                    is_deleted: user.deleted_at !== null
+                }
+            }
         })
     }
+
 }
