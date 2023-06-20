@@ -116,21 +116,31 @@ module.exports = {
         if (req.query.id) {
             req.query.id = base64url.decode(req.query.id)
 
-            channels = await account.getChannels({
+            channels = await db.Channel.findAll({
                 where: {
-                    id: req.query.id
+                    [Sequelize.Op.and]: [
+                        {
+                            id: req.query.id
+                        },
+                        {
+                            account_username: account.username
+                        }
+                    ]
                 }
             })
         } else if (req.query.name){
-            channels = await account.getChannels({
+            channels = await db.Channel.findAll({
                 where: {
                     [Sequelize.Op.and]: [
                         Sequelize.where(
-                          Sequelize.fn('LOWER', Sequelize.col('name')),
-                          'LIKE',
-                          `%${req.query.name.toLowerCase()}%`
-                        )
-                      ]
+                            Sequelize.fn('LOWER', Sequelize.col('name')),
+                            'LIKE',
+                            `%${req.query.name.toLowerCase()}%`
+                        ),
+                        {
+                            account_username : account.username
+                        }
+                    ]
                 }
             })
         } else {
@@ -230,6 +240,8 @@ module.exports = {
             return next(error)
         }
 
+        const acc_id = req.query.acc_id
+
         if (!acc_id){
             const users = await channel.getUsers()
 
@@ -253,7 +265,7 @@ module.exports = {
                             }),
                             created_at: user.created_at,
                             updated_at: user.updated_at,
-                            is_deleted: user.deleted_at !== null
+                            is_deleted: user.deleted_at !== undefined
                         }
                     }
                     ))
@@ -261,11 +273,16 @@ module.exports = {
             })
         }
 
-        const acc_id = req.query.acc_id
-
-        const user = await channel.getUser({
+        const user = await db.User.findOne({
             where: {
-                acc_id: acc_id
+                [Sequelize.Op.and]: [
+                    {
+                        acc_id: acc_id
+                    },
+                    {
+                        channel_id: channel.id
+                    }
+                ]
             }
         })
 
@@ -304,6 +321,7 @@ module.exports = {
 
         const schema = joi.object({
             acc_id: joi.string().required(),
+            id: joi.string().required()
         })
 
         try {
@@ -313,11 +331,18 @@ module.exports = {
             return next(error)
         }
 
-        const acc_id = req.body.acc_id
+        const acc_id = req.params.acc_id
 
-        const user = await channel.getUser({
+        const user = await db.User.findOne({
             where: {
-                acc_id: acc_id
+                [Sequelize.Op.and]: [
+                    {
+                        acc_id: acc_id
+                    },
+                    {
+                        channel_id: channel.id
+                    }
+                ]
             }
         })
 
