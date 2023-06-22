@@ -62,6 +62,23 @@ module.exports = {
 
     channelAccessCheck: async (req, res, next) => {
         const token = req.headers['access-token'];
+        const channel_id = req.headers['channel-id'];
+
+        if (!channel_id) {
+            return next(createError.Unauthorized("Channel ID is required"))
+        }
+
+        const channel = await Channel.findOne({
+            where: {
+                id: channel_id
+            }
+        })
+
+        if (!channel) {
+            return next(createError.NotFound("Channel not found"))
+        }
+
+        req.channel = channel
         
         if (!token) {
             return next(createError.Unauthorized("Access token is required. Started with 'r-'"))
@@ -75,9 +92,21 @@ module.exports = {
     },
 
     userAuth: async (req, res, next) => {
-        const user = req.channel.getUsers({
+
+        if (!req.params.acc_id) {
+            return next(createError.BadRequest("User acc_id is required"))
+        }
+
+        const user = await db.User.findOne({
             where: {
-                acc_id: req.params.acc_id
+                [Sequelize.Op.and]: [
+                    {
+                        acc_id: req.params.acc_id
+                    },
+                    {
+                        channel_id: req.channel
+                    }
+                ]
             }
         })
 

@@ -169,213 +169,205 @@ module.exports = {
                 }
         })
     },
-
-    createUsers: async (req, res, next) => {
-        const channel = req.channel
-
+    
+    getReviews: async (req, res, next) => {
         const schema = joi.object({
-            amount: joi.number().integer().min(1).optional(),
+            game_name: joi.string().optional(),
+            game_id: joi.number().integer().optional(),
+            acc_id: joi.number().integer().optional(),
         })
 
         try {
-            await schema.validateAsync(req.body)
+            await schema.validateAsync(req.query)
         } catch (error) {
             if (error.isJoi === true) error.status = 422
             return next(error)
         }
 
-        const amount = req.body.amount || 1
-
-        const userPrefix = channel.user_prefix
-
-        const temp = await sequelize.query(`SELECT COUNT(*) FROM users WHERE channel_id = :channelId`, {
-            type: sequelize.QueryTypes.SELECT,
-            replacements: {
-                channelId: channel.id
-            }
-        })
-
-        let last_count = parseInt(temp[0]['COUNT(*)'])
-        const users = []
-
-        for (var i = 0; i < amount; i++) {
-            last_count += 1
-            const formattedCount = String(last_count).padStart(userPrefix.match(/#/g).length, '0');
-            console.log(formattedCount)
-            const user = await channel.createUser({
-                acc_id: userPrefix.replace(new RegExp('#{1,' + userPrefix.match(/#+/)[0].length + '}', 'g'), formattedCount)
-            })
-
-            users.push(user.acc_id)
+        if (!req.query.game_name && !req.query.game_id && !req.query.acc_id){
+            return next(createError.BadRequest('At least one of the following parameters is required: game_name, game_id, acc_id'))
         }
 
-        return res.status(201).json({
-            message: 'Users created successfully!',
-            data: {
-                channel_id: base64url(channel.id),
-                channel_name: channel.name,
-                user_prefix: channel.user_prefix,
-                user_count: await channel.countUsers(),
-                created_user_count: parseInt(amount),
-                created_user: users.join(', ')
-            }
-        })
-    },
+        let game_id;
 
-    getUsers: async (req, res, next) => {
-        const channel = req.channel
-
-        const schema = joi.object({
-            acc_id: joi.string().optional(),
-        })
-
-
-        try {
-            await schema.validateAsync(req.query, {
-                abortEarly: false,
-                convert: false
+        if (req.query.game_id) game_id = req.query.game_id
+        else if (req.query.game_name) {
+            const game = await axios.get('https://api.igdb.com/v4/games', {
+                headers: {
+                    'Client-ID': process.env.IGDB_CLIENT_ID,
+                    'Authorization': `Bearer ${process.env.IGDB_ACCESS_TOKEN}`
+                },
+                search: req.body.game_name,
+                fields: 'id,name',
+                limit: 5
             })
-        } catch (error) {
-            if (error.isJoi === true) error.status = 422
-            return next(error)
+
+            if (game.data.length === 0) {
+                return next(createError.BadRequest(`${req.body.game_name} is not found`))
+            }
+
+            game_id = game.data[0].id
         }
 
-        const acc_id = req.query.acc_id
+        let user_id;
 
-        if (!acc_id){
-            const users = await channel.getUsers()
+        if (req.query.acc_id){
+            const user = await db.User.findOne({
+                where: {
+                    [Sequelize.Op.and]: [
+                        {
+                            acc_id: req.query.acc_id
+                        },
+                        {
+                            channel_id: req.channel.id
+                        }
+                    ]
+                }
+            })
+
+            if (!user){
+                return next(createError.BadRequest(`User with id ${req.query.acc_id} is not found`))
+            }
+
+            user_id = user.id
+        }
+
+
+        if (game_id && user_id){
+            const reviews = await db.Review.findAll({
+                where: {
+                    [Sequelize.Op.and]: [
+                        {
+                            game_id: game_id
+                        },
+                        {
+                            user_id: user_id
+                        }
+                    ]
+                }
+            })
+
+            if (reviews.length === 0){
+                return next(createError.NotFound('No reviews found'))
+            }
 
             return res.status(200).json({
-                message: 'Users retrieved successfully!',
+                message: 'Reviews retrieved successfully!',
                 data: {
-                    channel_id: base64url(channel.id),
-                    channel_name: channel.name,
-                    user_prefix: channel.user_prefix,
-                    user_count: await channel.countUsers(),
-                    users: await Promise.all(users.map(async (user) => {
+                    length: reviews.length,
+                    channel: {
+                        id: base64url(req.channel.id),
+                        name: req.channel.name,
+                    },
+                    reviews: await Promise.all(reviews.map(async (review) => {
+                        const user = await db.User.findOne({
+                            where: {
+                                id: review.user_id
+                            }
+                        })
+
                         return {
+                            id: review.id,
+                            game_id: review.game_id,
                             acc_id: user.acc_id,
-                            review_count: await user.countReviews(),
-                            last_review: await user.getReviews({
-                                limit: 1,
-                                order: [['created_at', 'DESC']]
-                            }).then(reviews => {
-                                if (reviews.length === 0) return "No reviews yet"
-                                return reviews[0].created_at
-                            }),
-                            created_at: user.created_at,
-                            updated_at: user.updated_at,
-                            is_deleted: user.deleted_at !== undefined
+                            rating: review.rating,
+                            review: review.review,
+                            screenshot: review.screenshot,
+                            created_at: review.created_at,
+                            updated_at: review.updated_at == undefined ? "Not updated yet" : review.updated_at,
+                            deleted_at: review.deleted_at == undefined ? "Not deleted yet" : review.deleted_at
+                        }
+                    }
+                    ))
+                }
+            }) 
+        } else if (game_id){
+            const reviews = await db.Review.findAll({
+                include: {
+                    model: db.User,
+                    where: {
+                        channel_id: req.channel.id
+                    }
+                },
+            })
+
+            if (reviews.length === 0){
+                return next(createError.NotFound('No reviews found'))
+            }
+
+            return res.status(200).json({
+                message: 'Reviews retrieved successfully!',
+                data: {
+                    length: reviews.length,
+                    channel: {
+                        id: base64url(req.channel.id),
+                        name: req.channel.name,
+                    },
+                    reviews: await Promise.all(reviews.map(async (review) => {
+                        const user = await db.User.findOne({
+                            where: {
+                                id: review.user_id
+                            }
+                        })
+
+                        return {
+                            id: review.id,
+                            game_id: review.game_id,
+                            acc_id: user.acc_id,
+                            rating: review.rating,
+                            review: review.review,
+                            screenshot: review.screenshot,
+                            created_at: review.created_at,
+                            updated_at: review.updated_at == undefined ? "Not updated yet" : review.updated_at,
+                            deleted_at: review.deleted_at == undefined ? "Not deleted yet" : review.deleted_at
+                        }
+                    }
+                    ))
+                }
+            })
+        } else {
+            const reviews = await db.Review.findAll({
+                where: {
+                    user_id: user_id
+                }
+            })
+
+            if (reviews.length === 0){
+                return next(createError.NotFound('No reviews found'))
+            }
+
+            return res.status(200).json({
+                message: 'Reviews retrieved successfully!',
+                data: {
+                    length: reviews.length,
+                    channel: {
+                        id: base64url(req.channel.id),
+                        name: req.channel.name,
+                    },
+                    reviews: await Promise.all(reviews.map(async (review) => {
+                        const user = await db.User.findOne({
+                            where: {
+                                id: review.user_id
+                            }
+                        })
+
+                        return {
+                            id: review.id,
+                            game_id: review.game_id,
+                            acc_id: user.acc_id,
+                            rating: review.rating,
+                            review: review.review,
+                            screenshot: review.screenshot,
+                            created_at: review.created_at,
+                            updated_at: review.updated_at == undefined ? "Not updated yet" : review.updated_at,
+                            deleted_at: review.deleted_at == undefined ? "Not deleted yet" : review.deleted_at
                         }
                     }
                     ))
                 }
             })
         }
-
-        const user = await db.User.findOne({
-            where: {
-                [Sequelize.Op.and]: [
-                    {
-                        acc_id: acc_id
-                    },
-                    {
-                        channel_id: channel.id
-                    }
-                ]
-            }
-        })
-
-        if (!user){
-            return next(createError.NotFound('User not found'))
-        }
-
-        return res.status(200).json({
-            message: 'User retrieved successfully!',
-            data: {
-                channel_id: base64url(channel.id),
-                channel_name: channel.name,
-                user_prefix: channel.user_prefix,
-                user_count: await channel.countUsers(),
-                user: {
-                    acc_id: user.acc_id,
-                    review_count: await user.countReviews(),
-                    last_review: await user.getReviews({
-                        limit: 1,
-                        order: [['created_at', 'DESC']]
-                    }).then(reviews => {
-                        if (reviews.length === 0) return "No reviews yet"
-                        return reviews[0].created_at
-                    }
-                    ),
-                    created_at: user.created_at,
-                    updated_at: user.updated_at,
-                    is_deleted: user.deleted_at !== null
-                }
-            }
-        })
     },
-
-    deleteUser: async (req, res, next) => {
-        const channel = req.channel
-
-        const schema = joi.object({
-            acc_id: joi.string().required(),
-            id: joi.string().required()
-        })
-
-        try {
-            await schema.validateAsync(req.params)
-        } catch (error) {
-            if (error.isJoi === true) error.status = 422
-            return next(error)
-        }
-
-        const acc_id = req.params.acc_id
-
-        const user = await db.User.findOne({
-            where: {
-                [Sequelize.Op.and]: [
-                    {
-                        acc_id: acc_id
-                    },
-                    {
-                        channel_id: channel.id
-                    }
-                ]
-            }
-        })
-
-        if (!user){
-            return next(createError.NotFound('User not found'))
-        }
-
-        await user.destroy()
-
-        return res.status(200).json({
-            message: 'User deleted successfully!',
-            data: {
-                channel_id: base64url(channel.id),
-                channel_name: channel.name,
-                user_prefix: channel.user_prefix,
-                user_count: await channel.countUsers(),
-                user: {
-                    acc_id: user.acc_id,
-                    review_count: await user.countReviews(),
-                    last_review: await user.getReviews({
-                        limit: 1,
-                        order: [['created_at', 'DESC']]
-                    }).then(reviews => {
-                        if (reviews.length === 0) return "No reviews yet"
-                        return reviews[0].created_at
-                    }
-                    ),
-                    created_at: user.created_at,
-                    updated_at: user.updated_at,
-                    is_deleted: user.deleted_at !== null
-                }
-            }
-        })
-    }
+    
 
 }
