@@ -29,6 +29,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
+      game_name: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE

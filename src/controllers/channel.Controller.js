@@ -217,6 +217,7 @@ module.exports = {
                         return {
                             id: review.id,
                             game_id: review.game_id,
+                            game_name: review.game_name,
                             acc_id: user.acc_id,
                             rating: review.rating,
                             review: review.review,
@@ -311,6 +312,7 @@ module.exports = {
                         return {
                             id: review.id,
                             game_id: review.game_id,
+                            game_name: review.game_name,
                             acc_id: user.acc_id,
                             rating: review.rating,
                             review: review.review,
@@ -359,6 +361,7 @@ module.exports = {
                         return {
                             id: review.id,
                             game_id: review.game_id,
+                            game_name: review.game_name,
                             acc_id: user.acc_id,
                             rating: review.rating,
                             review: review.review,
@@ -400,6 +403,7 @@ module.exports = {
                         return {
                             id: review.id,
                             game_id: review.game_id,
+                            game_name: review.game_name,
                             acc_id: user.acc_id,
                             rating: review.rating,
                             review: review.review,

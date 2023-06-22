@@ -222,6 +222,7 @@ module.exports = {
             }
     
             let game_id = -1;
+            let game_name = "";
             if (req.body.game_id){
                 game_id = req.body.game_id
             } else {
@@ -243,6 +244,7 @@ module.exports = {
                 }
     
                 game_id = game.data[0].id
+                game_name = game.data[0].name
             }
 
             const reviewNumber = await db.Review.findAndCountAll();
@@ -259,7 +261,8 @@ module.exports = {
                 game_id: game_id,
                 rating: req.body.rating,
                 review: req.body.review,
-                screenshot: myFilename
+                screenshot: myFilename,
+                game_name: game_name
             })
 
             return res.status(201).json({
