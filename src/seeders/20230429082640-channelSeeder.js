@@ -30,7 +30,7 @@ module.exports = {
       }
     
       for (let i = 0; i < numChannels; i++) {
-        await queryInterface.bulkInsert('Channels', [{
+        await queryInterface.bulkInsert('channels', [{
           id: faker.datatype.uuid(),
           name: faker.internet.domainWord().replace('-', ' '),
           user_prefix: 'US###',

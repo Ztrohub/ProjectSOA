@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.bulkInsert('Accounts', Array.from({ length: 10 }, () => {
+    await queryInterface.bulkInsert('accounts', Array.from({ length: 10 }, () => {
       const firstName = faker.name.firstName();
       const lastName = faker.name.lastName();
 

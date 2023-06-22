@@ -26,7 +26,7 @@ module.exports = {
       numUsers += Math.floor(Math.random() * maxUsers);
     
       for (let i = 0; i < numUsers; i++) {
-        await queryInterface.bulkInsert('Users', [{
+        await queryInterface.bulkInsert('users', [{
           acc_id: `US${(i+1).toString().padStart(3, '0')}`,
           channel_id: channel.id,
           created_at: new Date(),
