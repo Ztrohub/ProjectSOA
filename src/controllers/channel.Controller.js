@@ -272,7 +272,7 @@ module.exports = {
                             acc_id: user.acc_id,
                             rating: review.rating,
                             review: review.review,
-                            screenshot: review.screenshot,
+                            screenshot: review.screenshot == undefined ? "No Screenshot" : `https:// ${review.screenshot}`,
                             created_at: review.created_at,
                             updated_at: review.updated_at == undefined ? "Not updated yet" : review.updated_at,
                             deleted_at: review.deleted_at == undefined ? "Not deleted yet" : review.deleted_at
@@ -316,7 +316,7 @@ module.exports = {
                             acc_id: user.acc_id,
                             rating: review.rating,
                             review: review.review,
-                            screenshot: review.screenshot,
+                            screenshot: review.screenshot == undefined ? "No Screenshot" : `https:// ${review.screenshot}`,
                             created_at: review.created_at,
                             updated_at: review.updated_at == undefined ? "Not updated yet" : review.updated_at,
                             deleted_at: review.deleted_at == undefined ? "Not deleted yet" : review.deleted_at
@@ -357,7 +357,7 @@ module.exports = {
                             acc_id: user.acc_id,
                             rating: review.rating,
                             review: review.review,
-                            screenshot: review.screenshot,
+                            screenshot: review.screenshot == undefined ? "No Screenshot" : `https:// ${review.screenshot}`,
                             created_at: review.created_at,
                             updated_at: review.updated_at == undefined ? "Not updated yet" : review.updated_at,
                             deleted_at: review.deleted_at == undefined ? "Not deleted yet" : review.deleted_at
