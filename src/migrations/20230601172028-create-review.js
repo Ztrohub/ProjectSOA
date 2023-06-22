@@ -17,6 +17,10 @@ module.exports = {
         type: Sequelize.BIGINT,
         allowNull: false
       },
+      game_name: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       rating: {
         type: Sequelize.INTEGER(1),
         allowNull: false
@@ -28,10 +32,6 @@ module.exports = {
       screenshot: {
         type: Sequelize.STRING,
         allowNull: true
-      },
-      game_name: {
-        type: Sequelize.STRING,
-        allowNull: false
       },
       created_at: {
         allowNull: false,

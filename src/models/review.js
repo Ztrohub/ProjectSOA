@@ -32,6 +32,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BIGINT,
       allowNull: false
     },
+    game_name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     rating: {
       type: DataTypes.INTEGER,
       allowNull: false
@@ -43,10 +47,6 @@ module.exports = (sequelize, DataTypes) => {
     screenshot: {
       type: DataTypes.STRING,
       allowNull: true
-    },
-    game_name: {
-      type: DataTypes.STRING,
-      allowNull: false
     }
   }, {
     sequelize,

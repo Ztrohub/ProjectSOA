@@ -231,14 +231,14 @@ module.exports = {
                         'Client-ID': process.env.IGDB_CLIENT_ID,
                         'Authorization': `Bearer ${process.env.IGDB_ACCESS_TOKEN}`
                     },
-                    params: {
+                    params: { 
                         search: req.body.game_name,
                         fields: "name,rating",
                         limit: 1
                     }
                 })
     
-                if (game.data.length === 0) {
+                if (game.data.length === 0) { 
                     if(req.file) fs.unlinkSync(`./img/uploads/${req.file.filename}`);
                     return next(createError.BadRequest(`${req.body.game_name} is not found`))
                 }
@@ -252,7 +252,7 @@ module.exports = {
             if(req.file){
                 fs.renameSync(
                     `./img/uploads/${req.file.filename}`,
-                    `./img/public/${myFilename}`
+                    `./img/public/${myFilename}` 
                 );
             }
 
