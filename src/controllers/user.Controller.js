@@ -229,7 +229,7 @@ module.exports = {
 
                 let game;
                 try {
-                 game = await axios.get('https://api.igdb.com/v4/games', {
+                game = await axios.get('https://api.igdb.com/v4/games', {
                     headers: {
                         'Client-ID': process.env.IGDB_CLIENT_ID,
                         'Authorization': `Bearer ${process.env.IGDB_ACCESS_TOKEN}`
@@ -265,10 +265,10 @@ module.exports = {
             const review = await db.Review.create({
                 user_id: req.user.id,
                 game_id: game_id,
+                game_name: game_name,
                 rating: req.body.rating,
                 review: req.body.review,
-                screenshot: myFilename,
-                game_name: game_name
+                screenshot: myFilename
             })
 
             return res.status(201).json({
