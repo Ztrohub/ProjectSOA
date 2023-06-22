@@ -1,0 +1,788 @@
+{
+	"info": {
+		"_postman_id": "3d7ac492-b6f9-43f8-a140-9fb01183c899",
+		"name": "SOAproject",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25566083",
+		"_collection_link": "https://bold-shuttle-104397.postman.co/workspace/ProjectSOA_Prod~b3d4cfd1-2055-4b3c-9977-e6a5ba8e3163/collection/25566083-3d7ac492-b6f9-43f8-a140-9fb01183c899?action=share&creator=25566083&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "Account",
+			"item": [
+				{
+					"name": "Register Acc",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "budihartono12",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "budihartono@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "budi hartono",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "12345678",
+									"type": "text"
+								},
+								{
+									"key": "password_confirmation",
+									"value": "12345678",
+									"type": "text"
+								},
+								{
+									"key": "",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{Base_url}}/accounts/register",
+							"host": [
+								"{{Base_url}}"
+							],
+							"path": [
+								"accounts",
+								"register"
+							]
+						},
+						"description": "Deskripsi dokumentasi untuk endpoint `registerAccount` adalah sebagai berikut:\n\n**Deskripsi**  \nEndpoint `registerAccount` digunakan untuk mendaftarkan akun baru dalam sistem. Pengguna harus mengirimkan data yang diperlukan melalui metode HTTP `POST` ke endpoint ini. Setelah validasi data yang diterima, akun baru akan dibuat dalam database, dan respons dengan informasi akun yang baru dibuat akan dikembalikan.\n\n**Request Method**\n\n- `POST`\n    \n\n**Endpoint**\n\n- `/registerAccount`\n    \n\n**Request Body**\n\n- `username` (string, required): Nama pengguna yang unik. Harus berupa string tanpa spasi di awal atau akhir, hanya diperbolehkan karakter alfanumerik dan garis bawah.\n- `email` (string, required): Alamat email pengguna. Harus berupa string yang valid sesuai format email.\n- `name` (string, required): Nama lengkap pengguna.\n- `password` (string, required): Kata sandi untuk akun pengguna. Minimal 8 karakter, maksimal 32 karakter.\n- `password_confirmation` (string, required): Konfirmasi kata sandi. Harus sama dengan nilai `password`.\n    \n\n**Response**\n\n- Kode status: 201 (Created)\n- Body:\n    - `message` (string): Pesan konfirmasi bahwa akun telah berhasil dibuat.\n    - `data` (object): Informasi akun yang baru saja dibuat, termasuk:\n        - `username` (string): Nama pengguna akun.\n        - `email` (string): Alamat email pengguna.\n        - `name` (string): Nama lengkap pengguna.\n        - `account_type` (string): Jenis akun (\"free\" dalam contoh ini).\n        - `credit` (number): Jumlah kredit akun (0 dalam contoh ini).\n        - `created_at` (string): Waktu pembuatan akun.\n        - `updated_at` (string): Waktu terakhir akun diperbarui.\n\n**Contoh Penggunaan**\n\n``` http\nPOST /registerAccount\nContent-Type: application/json\n{\n  \"username\": \"john_doe\",\n  \"email\": \"john.doe@example.com\",\n  \"name\": \"John Doe\",\n  \"password\": \"pa$$w0rd\",\n  \"password_confirmation\": \"pa$$w0rd\"\n}\n\n```\n\n**Contoh Respon**\n\n``` json\n{\n  \"message\": \"Account created\",\n  \"data\": {\n    \"username\": \"john_doe\",\n    \"email\": \"john.doe@example.com\",\n    \"name\": \"John Doe\",\n    \"account_type\": \"free\",\n    \"credit\": 0,\n    \"created_at\": \"2023-06-22T12:34:56Z\",\n    \"updated_at\": \"2023-06-22T12:34:56Z\"\n  }\n}\n\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Acc",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"isi token.\", () => {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"USER_TOKEN\", responseJson.data.token);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "budihartono12",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "12345678",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{Base_url}}/accounts/login",
+							"host": [
+								"{{Base_url}}"
+							],
+							"path": [
+								"accounts",
+								"login"
+							]
+						},
+						"description": "Deskripsi dokumentasi untuk endpoint `loginAccount` adalah sebagai berikut:\n\n**Deskripsi**  \nEndpoint `loginAccount` digunakan untuk melakukan proses login ke dalam sistem. Pengguna harus mengirimkan data login yang valid melalui metode HTTP `POST` ke endpoint ini. Setelah autentikasi berhasil, token akses akan diterbitkan dan informasi akun akan dikembalikan dalam respons.\n\n**Request Method**\n\n- `POST`\n    \n\n**Endpoint**\n\n- `/loginAccount`\n    \n\n**Request Body**\n\n- `username` (string, required): Nama pengguna yang terdaftar dalam sistem.\n- `password` (string, required): Kata sandi yang sesuai dengan akun pengguna.\n    \n\n**Response**\n\n- Kode status: 200 (OK)\n- Body:\n    - `message` (string): Pesan konfirmasi bahwa proses login berhasil.\n    - `data` (object): Informasi akun yang berhasil login, termasuk:\n        - `token` (string): Token akses yang valid untuk mengotorisasi akses ke fitur-fitur terproteksi.\n        - `username` (string): Nama pengguna akun.\n        - `email` (string): Alamat email pengguna.\n        - `name` (string): Nama lengkap pengguna.\n        - `account_type` (string): Jenis akun pengguna.\n        - `credit` (number): Jumlah kredit akun.\n        - `created_at` (string): Waktu pembuatan akun.\n        - `updated_at` (string): Waktu terakhir akun diperbarui.\n\n**Contoh Penggunaan**\n\n``` http\nPOST /loginAccount\nContent-Type: application/json\n{\n  \"username\": \"john_doe\",\n  \"password\": \"pa$$w0rd\"\n}\n\n```\n\n**Contoh Respon**\n\n``` json\n{\n  \"message\": \"Login success\",\n  \"data\": {\n    \"token\": \"<access_token>\",\n    \"username\": \"john_doe\",\n    \"email\": \"john.doe@example.com\",\n    \"name\": \"John Doe\",\n    \"account_type\": \"free\",\n    \"credit\": 0,\n    \"created_at\": \"2023-06-22T12:34:56Z\",\n    \"updated_at\": \"2023-06-22T12:34:56Z\"\n  }\n}\n\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Acc",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{USER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{Base_url}}/accounts",
+							"host": [
+								"{{Base_url}}"
+							],
+							"path": [
+								"accounts"
+							]
+						},
+						"description": "Deskripsi dokumentasi untuk endpoint `getAccount` adalah sebagai berikut:\n\n**Deskripsi**  \nEndpoint `getAccount` digunakan untuk mendapatkan informasi akun pengguna yang sedang melakukan permintaan. Pengguna harus mengirimkan token akses yang valid dalam header permintaan untuk mengotentikasi diri mereka. Endpoint ini mengembalikan informasi lengkap tentang akun pengguna yang berhasil diautentikasi.\n\n**Request Method**\n\n- `GET`\n    \n\n**Endpoint**\n\n- `/getAccount`\n    \n\n**Request Headers**\n\n- `Authorization`: Bearer\n    \n\n**Response**\n\n- Kode status: 200 (OK)\n- Body:\n    - `message` (string): Pesan konfirmasi bahwa permintaan informasi akun berhasil.\n    - `data` (object): Informasi akun pengguna yang berhasil diautentikasi, termasuk:\n        - `username` (string): Nama pengguna akun.\n        - `email` (string): Alamat email pengguna.\n        - `name` (string): Nama lengkap pengguna.\n        - `account_type` (string): Jenis akun pengguna.\n        - `credit` (number): Jumlah kredit akun.\n        - `created_at` (string): Waktu pembuatan akun.\n        - `updated_at` (string): Waktu terakhir akun diperbarui.\n\n**Contoh Penggunaan**\n\n``` http\nGET /getAccount\nAuthorization: Bearer <access_token>\n\n```\n\n**Contoh Respon**\n\n``` json\n{\n  \"message\": \"Get account success\",\n  \"data\": {\n    \"username\": \"john_doe\",\n    \"email\": \"john.doe@example.com\",\n    \"name\": \"John Doe\",\n    \"account_type\": \"free\",\n    \"credit\": 0,\n    \"created_at\": \"2023-06-22T12:34:56Z\",\n    \"updated_at\": \"2023-06-22T12:34:56Z\"\n  }\n}\n\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Acc",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{USER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "budikun12@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "password_confirmation",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{Base_url}}/accounts",
+							"host": [
+								"{{Base_url}}"
+							],
+							"path": [
+								"accounts"
+							]
+						},
+						"description": "Deskripsi dokumentasi untuk endpoint `updateAccount` adalah sebagai berikut:\n\n**Deskripsi**  \nEndpoint `updateAccount` digunakan untuk mengupdate informasi akun pengguna yang sedang melakukan permintaan. Pengguna harus mengirimkan token akses yang valid dalam header permintaan untuk mengotentikasi diri mereka. Pengguna dapat mengupdate informasi seperti email, nama, atau password akun. Setelah proses update berhasil, informasi akun yang terbaru akan dikembalikan dalam respons.\n\n**Request Method**\n\n- `PUT`\n    \n\n**Endpoint**\n\n- `/updateAccount`\n    \n\n**Request Headers**\n\n- `Authorization`: Bearer\n    \n\n**Request Body**\n\n- `email` (string, optional): Alamat email baru pengguna. Harus berupa string yang valid sesuai format email. Opsional, tetapi jika diberikan, tidak boleh sudah ada dalam pengguna lain.\n- `name` (string, optional): Nama lengkap baru pengguna. Opsional.\n- `password` (string, optional): Kata sandi baru untuk akun pengguna. Minimal 8 karakter, maksimal 32 karakter. Opsional.\n- `password_confirmation` (string, optional): Konfirmasi kata sandi baru. Harus sama dengan nilai `password`. Opsional.\n    \n\n**Response**\n\n- Kode status: 200 (OK)\n- Body:\n    - `message` (string): Pesan konfirmasi bahwa proses update berhasil. Pesan akan mencantumkan bagian-bagian informasi yang berhasil diupdate.\n    - `data` (object): Informasi akun pengguna yang telah diupdate, termasuk:\n        - `username` (string): Nama pengguna akun.\n        - `email` (string): Alamat email pengguna.\n        - `name` (string): Nama lengkap pengguna.\n        - `account_type` (string): Jenis akun pengguna.\n        - `credit` (number): Jumlah kredit akun.\n        - `created_at` (string): Waktu pembuatan akun.\n        - `updated_at` (string): Waktu terakhir akun diperbarui.\n\n**Contoh Penggunaan**\n\n``` http\nPUT /updateAccount\nAuthorization: Bearer <access_token>\nContent-Type: application/json\n{\n  \"email\": \"new_email@example.com\",\n  \"name\": \"New Name\",\n  \"password\": \"new_pa$$w0rd\",\n  \"password_confirmation\": \"new_pa$$w0rd\"\n}\n\n```\n\n**Contoh Respon**\n\n``` json\n{\n  \"message\": \"Email, Name, Password update success\",\n  \"data\": {\n    \"username\": \"john_doe\",\n    \"email\": \"new_email@example.com\",\n    \"name\": \"New Name\",\n    \"account_type\": \"free\",\n    \"credit\": 0,\n    \"created_at\": \"2023-06-22T12:34:56Z\",\n    \"updated_at\": \"2023-06-23T09:12:34Z\"\n  }\n}\n\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Top Up",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{USER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "credit",
+									"value": "80000",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{Base_url}}/accounts/topup",
+							"host": [
+								"{{Base_url}}"
+							],
+							"path": [
+								"accounts",
+								"topup"
+							]
+						},
+						"description": "**Deskripsi**  \nEndpoint `topUpAccount` digunakan untuk menambahkan kredit ke akun pengguna yang sedang melakukan permintaan. Pengguna harus mengirimkan token akses yang valid dalam header permintaan untuk mengotentikasi diri mereka. Permintaan harus menyertakan jumlah kredit yang akan ditambahkan ke akun. Setelah proses top-up berhasil, informasi akun yang terbaru akan dikembalikan dalam respons.\n\n**Request Method**\n\n- `POST`\n    \n\n**Endpoint**\n\n- `/topUpAccount`\n    \n\n**Request Headers**\n\n- `Authorization`: Bearer\n    \n\n**Request Body**\n\n- `credit` (number, required): Jumlah kredit yang akan ditambahkan ke akun. Harus berupa angka dan minimal 10.000.\n    \n\n**Response**\n\n- Kode status: 200 (OK)\n- Body:\n    - `message` (string): Pesan konfirmasi bahwa proses top-up berhasil.\n    - `data` (object): Informasi akun pengguna setelah top-up berhasil, termasuk:\n        - `username` (string): Nama pengguna akun.\n        - `email` (string): Alamat email pengguna.\n        - `name` (string): Nama lengkap pengguna.\n        - `account_type` (string): Jenis akun pengguna.\n        - `credit` (string): Jumlah kredit akun setelah top-up dalam format string.\n        - `created_at` (string): Waktu pembuatan akun.\n        - `updated_at` (string): Waktu terakhir akun diperbarui.\n\n**Contoh Penggunaan**\n\n``` http\nPOST /topUpAccount\nAuthorization: Bearer <access_token>\nContent-Type: application/json\n{\n  \"credit\": 50000\n}\n\n```\n\n**Contoh Respon**\n\n``` json\n{\n  \"message\": \"Top up success\",\n  \"data\": {\n    \"username\": \"john_doe\",\n    \"email\": \"john.doe@example.com\",\n    \"name\": \"John Doe\",\n    \"account_type\": \"free\",\n    \"credit\": \"60000\",\n    \"created_at\": \"2023-06-22T12:34:56Z\",\n    \"updated_at\": \"2023-06-23T09:12:34Z\"\n  }\n}\n\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Upgrade Acc",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{USER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{Base_url}}/accounts/upgrade",
+							"host": [
+								"{{Base_url}}"
+							],
+							"path": [
+								"accounts",
+								"upgrade"
+							]
+						},
+						"description": "Deskripsi dokumentasi untuk endpoint `upgradeAccount` adalah sebagai berikut:\n\n**Deskripsi**  \nEndpoint `upgradeAccount` digunakan untuk meningkatkan jenis akun pengguna dari \"free\" menjadi \"premium\". Untuk berhasil meningkatkan akun, pengguna harus memenuhi dua persyaratan: jenis akun saat ini harus \"free\" dan jumlah kredit akun harus setidaknya 100.000. Jika akun sudah dalam status \"premium\" atau kredit tidak mencukupi, maka permintaan akan ditolak.\n\n**Request Method**\n\n- `POST`\n    \n\n**Endpoint**\n\n- `/upgradeAccount`\n    \n\n**Request Headers**\n\n- `Authorization`: Bearer\n    \n\n**Request Body**\n\n- Tidak ada data yang perlu dikirimkan dalam body permintaan.\n    \n\n**Response**\n\n- Kode status:\n    - 200 (OK): Jika peningkatan akun berhasil.\n    - 403 (Forbidden): Jika akun sudah dalam status \"premium\" atau kredit tidak mencukupi untuk peningkatan.\n- Body:\n    - Jika peningkatan akun berhasil (status 200), respons akan berisi:\n        - `message` (string): Pesan konfirmasi bahwa peningkatan akun berhasil.\n        - `data` (object): Informasi terkini tentang akun pengguna setelah peningkatan, termasuk:\n            - `username` (string): Nama pengguna akun.\n            - `email` (string): Alamat email pengguna akun.\n            - `name` (string): Nama lengkap pengguna akun.\n            - `account_type` (string): Jenis akun setelah peningkatan (\"premium\").\n            - `credit` (number): Jumlah kredit akun setelah dikurangi 100.000.\n            - `created_at` (string): Waktu pembuatan akun.\n            - `updated_at` (string): Waktu terakhir akun diperbarui.\n    - Jika permintaan ditolak (status 403), respons akan berisi pesan kesalahan yang sesuai dalam properti `error`.\n\n**Contoh Penggunaan**\n\n``` http\nPOST /upgradeAccount\nAuthorization: Bearer <access_token>\n\n```\n\n**Contoh Respon Berhasil**\n\n``` json\n{\n  \"message\": \"Upgrade success\",\n  \"data\": {\n    \"username\": \"john_doe\",\n    \"email\": \"john.doe@example.com\",\n    \"name\": \"John Doe\",\n    \"account_type\": \"premium\",\n    \"credit\": 50000,\n    \"created_at\": \"2021-01-01T12:00:00Z\",\n    \"updated_at\": \"2021-06-30T15:30:00Z\"\n  }\n}\n\n```\n\n**Contoh Respon Permintaan Ditolak**\n\n``` json\n{\n  \"error\": \"Forbidden\",\n  \"message\": \"Account is already premium\"\n}\n\n```\n\n**Keterangan**\n\n- Setelah berhasil meningkatkan akun, jenis akun akan berubah menjadi \"premium\" dan kredit akan dikurangi sebesar 100.000.\n- Jika permintaan ditolak karena akun sudah dalam status \"premium\", respons akan mengandung pesan kesalahan \"Account is already premium\".\n- Jika permintaan ditolak karena kredit tidak mencukupi, respons akan mengandung pesan kesalahan \"Not enough credit\"."
+					},
+					"response": []
+				}
+			],
+			"description": "Folder ini berisi semua endpoint yang berkaitan dengan Account, mulai dari Register , Login , Get account, Update account, Top up hingga upgrade"
+		},
+		{
+			"name": "Channel",
+			"item": [
+				{
+					"name": "Create Channel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"isi token.\", () => {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"ACCESS_TOKEN\", responseJson.data.access_token);\r",
+									"    pm.collectionVariables.set(\"CHANNEL_ID\", responseJson.data.id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{USER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "Happy day",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{Base_url}}/channels",
+							"host": [
+								"{{Base_url}}"
+							],
+							"path": [
+								"channels"
+							]
+						},
+						"description": "**Deskripsi**  \nEndpoint `createChannel` digunakan untuk membuat saluran baru dalam akun pengguna yang sedang melakukan permintaan. Pengguna harus mengirimkan token akses yang valid dalam header permintaan untuk mengotentikasi diri mereka. Terdapat beberapa aturan terkait pembuatan saluran, tergantung pada jenis akun pengguna saat ini dan jumlah saluran yang sudah dibuat. Setelah saluran berhasil dibuat, informasi saluran tersebut beserta token akses akan dikembalikan dalam respons.\n\n**Request Method**\n\n- `POST`\n    \n\n**Endpoint**\n\n- `/createChannel`\n    \n\n**Request Headers**\n\n- `Authorization`: Bearer\n    \n\n**Request Body**\n\n- `name` (string, required): Nama untuk saluran baru.\n- `user_prefix` (string, optional): Awalan untuk nama pengguna dalam saluran. Harus mengikuti format khusus dan minimal mengandung tiga karakter \"#\" yang terpisah. Jika tidak disediakan, nilai default \"US###\" akan digunakan.\n    \n\n**Response**\n\n- Kode status: 201 (Created)\n- Body:\n    - `message` (string): Pesan konfirmasi bahwa saluran berhasil dibuat.\n    - `data` (object): Informasi saluran yang baru saja dibuat, termasuk:\n        - `access_token` (string): Token akses yang digunakan untuk mengotentikasi permintaan terkait saluran.\n        - `id` (string): ID saluran yang telah dienkripsi untuk keperluan keamanan.\n        - `name` (string): Nama saluran.\n        - `user_prefix` (string): Awalan nama pengguna dalam saluran.\n        - `account_username` (string): Nama pengguna akun yang memiliki saluran.\n        - `created_at` (string): Waktu pembuatan saluran.\n        - `updated_at` (string): Waktu terakhir saluran diperbarui.\n\n**Contoh Penggunaan**\n\n``` http\nPOST /createChannel\nAuthorization: Bearer <access_token>\n{\n  \"name\": \"My Channel\",\n  \"user_prefix\": \"US###\"\n}\n\n```\n\n**Contoh Respon**\n\n``` json\n{\n  \"message\": \"Channel created successfully! Save your access token. It will not be shown again.\",\n  \"data\": {\n    \"access_token\": \"r-A2F27D79B61AB34D\",\n    \"id\": \"VUlGQj8kIyQmMCQqJDEmJiQ1JCMkNDQqJCRBJCQ0JCE=\",\n    \"name\": \"My Channel\",\n    \"user_prefix\": \"US###\",\n    \"account_username\": \"john_doe\",\n    \"created_at\": \"2023-06-22T12:34:56Z\",\n    \"updated_at\": \"2023-06-22T12:34:56Z\"\n  }\n}\n\n```\n\n**Keterangan**\n\n- Jika akun pengguna adalah akun gratis (`free`) dan sudah memiliki satu saluran, respons akan mengembalikan pesan kesalahan \"Free account can only create one channel. Please upgrade your account to create more channels\" dengan kode status 403 Forbidden.\n- `access_token` adalah token akses yang digunakan untuk mengotentikasi permintaan terkait saluran. Token ini harus disimpan dengan aman karena tidak akan ditampilkan lagi dalam respons.\n- `id` adalah ID saluran yangtelah dienkripsi untuk menjaga keamanan. ID ini dapat digunakan dalam permintaan terkait saluran.\n- `user_prefix` adalah awalan yang digunakan untuk nama pengguna dalam saluran.\n- `account_username` adalah nama pengguna akun yang memiliki saluran.\n- Perhatikan bahwa contoh di atas hanya ilustrasi dan nilai-nilai aktual dapat berbeda dalam respons sebenarnya."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Channel",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{USER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{Base_url}}/channels",
+							"host": [
+								"{{Base_url}}"
+							],
+							"path": [
+								"channels"
+							]
+						},
+						"description": "Deskripsi dokumentasi untuk endpoint `getChannels` adalah sebagai berikut:\n\n**Deskripsi**  \nEndpoint `getChannels` digunakan untuk mengambil daftar saluran yang terkait dengan akun pengguna yang sedang melakukan permintaan. Pengguna harus mengirimkan token akses yang valid dalam header permintaan untuk mengotentikasi diri mereka. Permintaan dapat disaring berdasarkan nama saluran atau ID saluran. Jika tidak ada parameter yang diberikan, semua saluran yang terkait dengan akun pengguna akan dikembalikan dalam respons.\n\n**Request Method**\n\n- `GET`\n    \n\n**Endpoint**\n\n- `/getChannels`\n    \n\n**Request Headers**\n\n- `Authorization`: Bearer\n    \n\n**Query Parameters**\n\n- `name` (string, optional): Nama saluran yang akan difilter. Case-insensitive. Hanya saluran dengan nama yang cocok akan dikembalikan.\n- `id` (string, optional): ID saluran yang akan difilter. Hanya saluran dengan ID yang cocok akan dikembalikan. ID saluran harus dikodekan sebelum digunakan sebagai parameter.\n    \n\n**Response**\n\n- Kode status: 200 (OK)\n- Body:\n    - `message` (string): Pesan konfirmasi bahwa saluran berhasil diambil.\n    - `data` (object): Informasi saluran yang berhasil diambil, termasuk:\n        - `length` (number): Jumlah saluran yang berhasil diambil.\n        - `channels` (array): Daftar saluran yang berhasil diambil. Setiap objek saluran memiliki informasi sebagai berikut:\n            - `id` (string): ID saluran yang telah dienkripsi untuk keperluan keamanan.\n            - `name` (string): Nama saluran.\n            - `user_prefix` (string): Awalan nama pengguna dalam saluran.\n            - `user_count` (number): Jumlah pengguna yang terdaftar dalam saluran.\n            - `account_username` (string): Nama pengguna akun yang memiliki saluran.\n            - `created_at` (string): Waktu pembuatan saluran.\n            - `updated_at` (string): Waktu terakhir saluran diperbarui.\n\n**Contoh Penggunaan**\n\n``` http\nGET /getChannels?name=My Channel\nAuthorization: Bearer <access_token>\n\n```\n\n**Contoh Respon**\n\n``` json\n{\n  \"message\": \"Channels retrieved successfully!\",\n  \"data\": {\n    \"length\": 1,\n    \"channels\": [\n      {\n        \"id\": \"VUlGQj8kIyQmMCQqJDEmJiQ1JCMkNDQqJCRBJCQ0JCE=\",\n        \"name\": \"My Channel\",\n        \"user_prefix\": \"US###\",\n        \"user_count\": 10,\n        \"account_username\": \"john_doe\",\n        \"created_at\": \"2023-06-22T12:34:56Z\",\n        \"updated_at\": \"2023-06-22T12:34:56Z\"\n      }\n    ]\n  }\n}\n\n```\n\n**Keterangan**\n\n- Jika tidak ada saluran yang cocok dengan parameter yang diberikan, respons akan mengembalikan pesan kesalahan \"No channels found\" dengan kode status 404 Not Found.\n- `id` adalah ID saluran yang telah dienkripsi untuk menjaga keamanan. ID ini dapat digunakan dalam permintaan terkait saluran.\n- Perhatikan bahwa contoh di atas hanya ilustrasi dan\n    nilai-nilai aktual dapat berbeda dalam respons sebenarnya."
+					},
+					"response": []
+				},
+				{
+					"name": "Generate Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"isi token.\", () => {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"ACCESS_TOKEN\", responseJson.data.access_token);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{USER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{Base_url}}/channels/:id/generate-token",
+							"host": [
+								"{{Base_url}}"
+							],
+							"path": [
+								"channels",
+								":id",
+								"generate-token"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{CHANNEL_ID}}"
+								}
+							]
+						},
+						"description": "**Deskripsi**  \nEndpoint `generateAccessToken` digunakan untuk menghasilkan access token baru untuk suatu channel. Access token adalah sebuah kunci rahasia yang digunakan untuk otentikasi saat mengakses atau mengontrol channel tersebut. Setiap kali endpoint ini dipanggil, access token yang lama akan digantikan dengan yang baru.\n\n**Request Method**\n\n- `POST`\n    \n\n**Endpoint**\n\n- `/generateAccessToken`\n    \n\n**Request Headers**\n\n- `Authorization`: Bearer\n    \n\n**Request Body**\n\n- Tidak ada data yang perlu dikirimkan dalam body permintaan.\n    \n\n**Response**\n\n- Kode status:\n    - 200 (OK): Jika access token berhasil dihasilkan.\n- Body:\n    - Jika access token berhasil dihasilkan (status 200), respons akan berisi:\n        - `message` (string): Pesan konfirmasi bahwa access token berhasil dihasilkan.\n        - `data` (object): Informasi terkini tentang channel, termasuk:\n            - `access_token` (string): Access token baru yang dihasilkan.\n            - `id` (string): ID channel yang dienkripsi dalam bentuk base64.\n            - `name` (string): Nama channel.\n            - `user_prefix` (string): Prefiks pengguna pada channel.\n            - `account_username` (string): Nama pengguna akun yang memiliki channel.\n            - `created_at` (string): Waktu pembuatan channel.\n            - `updated_at` (string): Waktu terakhir channel diperbarui.\n\n**Contoh Penggunaan**\n\n``` http\nPOST /generateAccessToken\nAuthorization: Bearer <access_token>\n\n```\n\n**Contoh Respon Berhasil**\n\n``` json\n{\n  \"message\": \"Access token generated successfully! Save your access token. It will not be shown again.\",\n  \"data\": {\n    \"access_token\": \"r-2a3b4c5d6e7f8g9h\",\n    \"id\": \"TUlHYWE0M3p0YWNOQ0ExMDEtNjM4OC00OFlVUy1BQkREUEo=\",\n    \"name\": \"Channel ABC\",\n    \"user_prefix\": \"US###\",\n    \"account_username\": \"john_doe\",\n    \"created_at\": \"2021-01-01T12:00:00Z\",\n    \"updated_at\": \"2021-06-30T15:30:00Z\"\n  }\n}\n\n```\n\n**Keterangan**\n\n- Saat endpoint ini dipanggil, access token lama pada channel akan digantikan dengan access token baru yang dihasilkan.\n- Access token baru adalah sebuah string acak yang digunakan untuk otentikasi saat mengakses atau mengontrol channel.\n- Setelah access token baru dihasilkan, access token lama tidak dapat diketahui lagi.\n- Respons akan memberikan informasi terkini tentang channel, termasuk access token baru yang dihasilkan.\n- Access token baru harus disimpan dengan aman dan digunakan saat mengakses atau mengontrol channel."
+					},
+					"response": []
+				},
+				{
+					"name": "Review Channel",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "access-token",
+								"value": "{{ACCESS_TOKEN}}",
+								"type": "text"
+							},
+							{
+								"key": "channel-id",
+								"value": "{{CHANNEL_ID}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{Base_url}}/channels/reviews",
+							"host": [
+								"{{Base_url}}"
+							],
+							"path": [
+								"channels",
+								"reviews"
+							]
+						},
+						"description": "**Deskripsi**\n\nEndpoint ini digunakan untuk mengambil data ulasan (reviews) berdasarkan parameter yang diberikan. Endpoint ini mendukung filter ulasan berdasarkan nama game, ID game, dan ID akun pengguna. Endpoint ini menghandle berbagai skenario berdasarkan kombinasi parameter yang diberikan.\n\n- **URL**: /getReviews\n- **Metode**: GET\n    \n\n**Parameter:**\n\n- game_name (opsional): String yang merepresentasikan nama game.\n- game_id (opsional): Integer yang merepresentasikan ID game.\n- acc_id (opsional): String yang merepresentasikan ID akun pengguna.\n    \n\n**Contoh Permintaan:**\n\n```\nGET /getReviews?game_name=NamaGame&acc_id=12345\n\n```\n\n**Contoh Respons:**\n\n``` json\n{\n  \"message\": \"Berhasil mengambil ulasan!\",\n  \"data\": {\n    \"length\": 3,\n    \"channel\": {\n      \"id\": \"YTZmMjNhZDUtMWE1OS00NjE3LTg5NjYtZjg1ZDY0MWUzODRl\",\n      \"name\": \"Nama Channel\"\n    },\n    \"reviews\": [\n      {\n        \"id\": 1,\n        \"game_id\": 123,\n        \"game_name\": \"NamaGame\",\n        \"acc_id\": \"pengguna123\",\n        \"rating\": 4,\n        \"review\": \"Game ini keren!\",\n        \"screenshot\": \"https://domain/assets/screenshot1.png\",\n        \"created_at\": \"2023-06-20T12:00:00Z\",\n        \"updated_at\": \"2023-06-21T10:30:00Z\",\n        \"deleted_at\": \"Belum dihapus\"\n      },\n      {\n        \"id\": 2,\n        \"game_id\": 123,\n        \"game_name\": \"NamaGame\",\n        \"acc_id\": \"pengguna456\",\n        \"rating\": 3,\n        \"review\": \"Game ini lumayan bagus.\",\n        \"screenshot\": \"https://domain/assets/screenshot2.png\",\n        \"created_at\": \"2023-06-19T09:45:00Z\",\n        \"updated_at\": \"Belum diperbarui\",\n        \"deleted_at\": \"Belum dihapus\"\n      },\n      {\n        \"id\": 3,\n        \"game_id\": 123,\n        \"game_name\": \"NamaGame\",\n        \"acc_id\": \"pengguna789\",\n        \"rating\": 5,\n        \"review\": \"Game terbaik!\",\n        \"screenshot\": \"Tidak Ada Screenshot\",\n        \"created_at\": \"2023-06-18T15:20:00Z\",\n        \"updated_at\": \"2023-06-20T08:10:00Z\",\n        \"deleted_at\": \"Belum dihapus\"\n      }\n    ]\n  }\n}\n\n```\n\n**Skenario 1: Tidak Ada Parameter yang Diberikan**\n\n- Jika tidak ada parameter yang diberikan, endpoint ini mengambil semua ulasan yang terkait dengan channel saat ini.\n- Ulasan-ulasan tersebut dikembalikan dalam respons, beserta informasi channel.\n- Jika tidak ada ulasan yang ditemukan, error \"Tidak ditemukan ulasan\" dikembalikan.\n    \n\n**Skenario 2: Parameter game_name Diberikan**\n\n- Jika parameter game_name diberikan, endpoint ini mencari game dengan menggunakan API IGDB.\n- Jika game ditemukan,ID game tersebut digunakan untuk mengambil ulasan yang terkait dengan game tersebut dalam channel saat ini.\n- Ulasan-ulasan tersebut dikembalikan dalam respons, beserta informasi channel.\n- Jika game tidak ditemukan, error \"NamaGame tidak ditemukan\" dikembalikan.\n    \n\n**Skenario 3: Parameter acc_id Diberikan**\n\n- Jika parameter acc_id diberikan, endpoint ini mencari pengguna dengan menggunakan ID akun tersebut dalam channel saat ini.\n- Jika pengguna ditemukan, ID pengguna tersebut digunakan untuk mengambil ulasan yang terkait dengan pengguna tersebut dalam channel saat ini.\n- Ulasan-ulasan tersebut dikembalikan dalam respons, beserta informasi channel.\n- Jika pengguna tidak ditemukan, error \"Pengguna dengan ID pengguna123 tidak ditemukan\" dikembalikan.\n    \n\n**Skenario 4: Parameter game_id dan acc_id Diberikan**\n\n- Jika kedua parameter game_id dan acc_id diberikan, endpoint ini mengambil ulasan yang terkait dengan game dan pengguna yang spesifik dalam channel saat ini.\n    \n\n**Skenario 5: Parameter game_id Diberikan**\n\n- Jika hanya parameter game_id yang diberikan, endpoint ini mengambil ulasan yang terkait dengan game spesifik dalam channel saat ini.\n    \n\n**Skenario 6: Parameter acc_id Diberikan**\n\n- Jika hanya parameter acc_id yang diberikan, endpoint ini mengambil ulasan yang terkait dengan pengguna spesifik dalam channel saat ini.\n    \n\nDalam semua skenario, ulasan-ulasan yang ditemukan dikembalikan dalam respons, beserta informasi channel. Setiap ulasan termasuk detail seperti ID, ID game, nama game, ID akun, rating, teks ulasan, screenshot (jika tersedia), waktu pembuatan, waktu pembaruan terakhir (jika tersedia), dan waktu penghapusan (jika tersedia).\n\nJika tidak ditemukan ulasan dalam setiap skenario, error \"Tidak ditemukan ulasan\" dikembalikan."
+					},
+					"response": []
+				}
+			],
+			"description": "Folder ini berisi endpoint dari channel, yang berfungsi untuk create, get dan juga generate token"
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Create user",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "access-token",
+								"value": "{{ACCESS_TOKEN}}",
+								"type": "text"
+							},
+							{
+								"key": "channel-id",
+								"value": "{{CHANNEL_ID}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{Base_url}}/users",
+							"host": [
+								"{{Base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Endpoint `createUsers` digunakan untuk membuat pengguna baru dalam sebuah kanal. Endpoint ini mengharapkan permintaan POST yang berisi jumlah pengguna yang akan dibuat dalam bentuk JSON. Jika tidak ada jumlah yang ditentukan, maka secara default akan membuat satu pengguna.\n\nEndpoint ini terlebih dahulu memvalidasi permintaan menggunakan skema Joi. Jika validasi gagal, maka akan mengembalikan respon dengan status kode 422 dan kesalahan validasi yang terkait. Jika validasi berhasil, maka endpoint akan melanjutkan ke proses pembuatan pengguna.\n\nPertama, endpoint mengambil kanal dari permintaan yang diberikan. Kemudian, endpoint melakukan query ke database untuk menghitung jumlah pengguna yang ada dalam kanal tersebut.\n\nSelanjutnya, endpoint melakukan iterasi sebanyak jumlah pengguna yang akan dibuat. Untuk setiap iterasi, endpoint meningkatkan jumlah pengguna terakhir dan memformatnya sesuai dengan format prefix pengguna yang diberikan dalam kanal. Selanjutnya, pengguna baru dibuat dengan menggunakan metode `createUser` pada objek kanal, dengan memberikan nilai `acc_id` yang dihasilkan dari format yang sesuai.\n\nSetelah pengguna berhasil dibuat, ID pengguna ditambahkan ke dalam daftar pengguna. Setelah semua pengguna selesai dibuat, endpoint mengembalikan respon dengan status kode 201 dan objek JSON yang berisi pesan sukses, informasi kanal, jumlah pengguna di kanal sekarang, jumlah pengguna yang berhasil dibuat, dan daftar ID pengguna yang dibuat."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"isi token.\", () => {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"ACC_ID\", responseJson.data.acc_id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "access-token",
+								"value": "{{ACCESS_TOKEN}}",
+								"type": "text"
+							},
+							{
+								"key": "channel-id",
+								"value": "{{CHANNEL_ID}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{Base_url}}/users",
+							"host": [
+								"{{Base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Endpoint `getUsers` digunakan untuk mendapatkan informasi tentang pengguna dalam sebuah kanal. Endpoint ini dapat menerima permintaan GET dengan parameter opsional `acc_id` yang digunakan untuk mencari pengguna berdasarkan ID akun. Jika parameter tidak disediakan, maka endpoint akan mengembalikan informasi tentang semua pengguna dalam kanal tersebut.\n\n**URL Endpoint**\n\n```\nGET /getUsers\n\n```\n\n**Parameter URL**\n\n- `acc_id` (opsional): ID akun pengguna yang ingin dicari.\n    \n\n**Contoh Permintaan:**\n\n```\nGET /getUsers?acc_id=123456789\n\n```\n\n**Contoh Respon:**\n\n``` json\n{\n  \"message\": \"User retrieved successfully!\",\n  \"data\": {\n    \"channel_id\": \"c2FtcGxlLWNvbW1vbmx5\",\n    \"channel_name\": \"Sample Channel\",\n    \"user_prefix\": \"#\",\n    \"user_count\": 10,\n    \"user\": {\n      \"acc_id\": \"123456789\",\n      \"review_count\": 5,\n      \"last_review\": \"2023-06-20T12:34:56Z\",\n      \"created_at\": \"2023-06-18T09:12:34Z\",\n      \"updated_at\": \"2023-06-20T15:23:45Z\",\n      \"is_deleted\": false\n    }\n  }\n}\n\n```\n\n**Deskripsi Respon:**\n\nJika parameter `acc_id` tidak diberikan, endpoint akan mengembalikan informasi tentang semua pengguna dalam kanal. Respon akan berisi status 200 OK dengan objek JSON yang memiliki properti berikut:\n\n- `message` (string): Pesan sukses yang menyatakan bahwa pengguna berhasil diambil.\n- `data` (objek): Objek yang berisi informasi kanal dan pengguna-pengguna yang ditemukan.\n    - `channel_id` (string): ID kanal yang telah dienkripsi dengan base64url.\n    - `channel_name` (string): Nama kanal.\n    - `user_prefix` (string): Awalan format ID pengguna dalam kanal.\n    - `user_count` (number): Jumlah total pengguna dalam kanal.\n    - `users` (array): Daftar pengguna dalam kanal.\n        - `acc_id` (string): ID akun pengguna.\n        - `review_count` (number): Jumlah ulasan yang dimiliki pengguna.\n        - `last_review` (string): Tanggal dan waktu ulasan terakhir yang dibuat oleh pengguna. Jika tidak ada ulasan, nilai ini akan menjadi \"No reviews yet\".\n        - `created_at` (string): Tanggal dan waktu pembuatan akun pengguna.\n        - `updated_at` (string): Tanggal dan waktu terakhir pengguna diperbarui.\n        - `is_deleted` (boolean): Status pengguna apakah telah dihapus atau tidak.\n\nJika parameter `acc_id` diberikan, endpoint akan mencari pengguna berdasarkan ID akun dalam kanal. Jika pengguna ditemukan, respon akan berisi status 200 OK dengan objek JSON yang memiliki struktur yang sama dengan di atas, tetapi hanya satu objek pengguna yang ditemukan akan ada dalam properti `user`. Jika pengguna tidak ditemukan, respon akan mengembalikan status 404 Not Found dengan pesan kesalahan \"User not found\".\n\n**Kode Status Respon:**\n\n- `200 OK`: Permintaan berhasil dan informasi peng"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "access-token",
+								"value": "{{ACCESS_TOKEN}}",
+								"type": "text"
+							},
+							{
+								"key": "channel-id",
+								"value": "{{CHANNEL_ID}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{Base_url}}/users/US002",
+							"host": [
+								"{{Base_url}}"
+							],
+							"path": [
+								"users",
+								"US002"
+							]
+						},
+						"description": "Endpoint `deleteUser` digunakan untuk menghapus pengguna dari sebuah kanal. Endpoint ini mengharapkan permintaan dengan metode HTTP DELETE dan tidak memerlukan parameter tambahan.\n\n**URL Endpoint**\n\n```\nDELETE /deleteUser\n\n```\n\n**Contoh Permintaan:**\n\n```\nDELETE /deleteUser\n\n```\n\n**Contoh Respon:**\n\n``` json\n{\n  \"message\": \"User deleted successfully!\",\n  \"data\": {\n    \"channel_id\": \"c2FtcGxlLWNvbW1vbmx5\",\n    \"channel_name\": \"Sample Channel\",\n    \"user_prefix\": \"#\",\n    \"user_count\": 9,\n    \"user\": {\n      \"acc_id\": \"123456789\",\n      \"review_count\": 5,\n      \"last_review\": \"2023-06-20T12:34:56Z\",\n      \"created_at\": \"2023-06-18T09:12:34Z\",\n      \"updated_at\": \"2023-06-20T15:23:45Z\",\n      \"is_deleted\": true\n    }\n  }\n}\n\n```\n\n**Deskripsi Respon:**\n\nEndpoint ini akan menghapus pengguna yang terkait dengan permintaan dari kanal. Respon akan berisi status 200 OK dengan objek JSON yang memiliki properti berikut:\n\n- `message` (string): Pesan sukses yang menyatakan bahwa pengguna berhasil dihapus.\n- `data` (objek): Objek yang berisi informasi kanal dan pengguna yang telah dihapus.\n    - `channel_id` (string): ID kanal yang telah dienkripsi dengan base64url.\n    - `channel_name` (string): Nama kanal.\n    - `user_prefix` (string): Awalan format ID pengguna dalam kanal.\n    - `user_count` (number): Jumlah total pengguna dalam kanal setelah pengguna dihapus.\n    - `user` (objek): Informasi tentang pengguna yang telah dihapus.\n        - `acc_id` (string): ID akun pengguna.\n        - `review_count` (number): Jumlah ulasan yang dimiliki pengguna.\n        - `last_review` (string): Tanggal dan waktu ulasan terakhir yang dibuat oleh pengguna sebelum dihapus. Jika tidak ada ulasan, nilai ini akan menjadi \"No reviews yet\".\n        - `created_at` (string): Tanggal dan waktu pembuatan akun pengguna.\n        - `updated_at` (string): Tanggal dan waktu terakhir pengguna diperbarui.\n        - `is_deleted` (boolean): Status pengguna yang menunjukkan apakah pengguna telah dihapus atau tidak. Dalam kasus ini, nilai akan selalu `true` karena pengguna telah dihapus.\n\n**Kode Status Respon:**\n\n- `200 OK`: Permintaan berhasil dan pengguna telah dihapus dari kanal."
+					},
+					"response": []
+				},
+				{
+					"name": "Review User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "access-token",
+								"value": "{{ACCESS_TOKEN}}",
+								"type": "text"
+							},
+							{
+								"key": "channel-id",
+								"value": "{{CHANNEL_ID}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "rating",
+									"value": "4",
+									"type": "text"
+								},
+								{
+									"key": "review",
+									"value": "ga bahaya ta?",
+									"type": "text"
+								},
+								{
+									"key": "game_name",
+									"value": "Dota 2",
+									"type": "text"
+								},
+								{
+									"key": "screenshot",
+									"type": "file",
+									"src": "/C:/Users/Jonathan Aurelius/OneDrive/Pictures/bola.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{Base_url}}/users/US001/review",
+							"host": [
+								"{{Base_url}}"
+							],
+							"path": [
+								"users",
+								"US001",
+								"review"
+							]
+						},
+						"description": "Endpoint `createReview` digunakan untuk membuat ulasan baru untuk permainan tertentu. Endpoint ini mengharapkan permintaan dengan metode HTTP POST dan mengirimkan data yang diperlukan dalam tubuh permintaan.\n\n**URL Endpoint**\n\n```\nPOST /createReview\n\n```\n\n**Contoh Permintaan:**\n\n``` http\nPOST /createReview\nContent-Type: multipart/form-data\nrating=4\nreview=This game is amazing!\ngame_name=Red Dead Redemption 2\nscreenshot=<file_data>\n\n```\n\n**Contoh Respon:**\n\n``` json\n{\n  \"message\": \"Review created successfully\",\n  \"data\": {\n    \"id\": 123,\n    \"user_id\": 456,\n    \"game_id\": 789,\n    \"game_name\": \"Red Dead Redemption 2\",\n    \"rating\": 4,\n    \"review\": \"This game is amazing!\",\n    \"screenshot\": \"screenshot.jpg\",\n    \"createdAt\": \"2023-06-20T12:34:56Z\",\n    \"updatedAt\": \"2023-06-20T12:34:56Z\"\n  }\n}\n\n```\n\n**Deskripsi Respon:**\n\nEndpoint ini akan membuat ulasan baru untuk permainan dengan menggunakan data yang diberikan dalam tubuh permintaan. Respon akan berisi status 201 Created dengan objek JSON yang mencakup informasi ulasan yang baru dibuat:\n\n- `message` (string): Pesan sukses yang menyatakan bahwa ulasan telah berhasil dibuat.\n- `data` (objek): Objek yang berisi informasi tentang ulasan yang baru dibuat.\n    - `id` (number): ID unik ulasan.\n    - `user_id` (number): ID pengguna yang membuat ulasan.\n    - `game_id` (number): ID permainan yang diulas.\n    - `game_name` (string): Nama permainan yang diulas.\n    - `rating` (number): Penilaian yang diberikan untuk permainan (1-5).\n    - `review` (string): Isi dari ulasan.\n    - `screenshot` (string): Nama file gambar tangkapan layar (jika ada).\n    - `createdAt` (string): Tanggal dan waktu pembuatan ulasan.\n    - `updatedAt` (string): Tanggal dan waktu terakhir ulasan diperbarui (sama dengan waktu pembuatan untuk ulasan baru).\n\n**Form Data Parameters:**\n\n- `rating` (integer, required): Penilaian yang diberikan untuk permainan (1-5).\n- `review` (string, optional): Isi dari ulasan.\n- `game_name` (string, optional): Nama permainan yang diulas. Jika `game_id` tidak diberikan, nama permainan akan digunakan untuk mencari ID permainan.\n- `game_id` (string, optional): ID permainan yang diulas. Jika `game_name` tidak diberikan, ID permainan harus disediakan.\n- `screenshot` (file, optional): File gambar tangkapan layar permainan yang akan diunggah.\n    \n\n**Kode Status Respon:**\n\n- `201 Created`: Permintaan berhasil dan ulasan telah berhasil dibuat. Ulasan baru akan disertakan dalam respon."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Review",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "access-token",
+								"value": "{{ACCESS_TOKEN}}",
+								"type": "text"
+							},
+							{
+								"key": "channel-id",
+								"value": "{{CHANNEL_ID}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "rating",
+									"value": "4",
+									"type": "text"
+								},
+								{
+									"key": "review",
+									"value": "Takut banget loh",
+									"type": "text"
+								},
+								{
+									"key": "screenshot",
+									"type": "file",
+									"src": "/C:/Users/Jonathan Aurelius/OneDrive/Pictures/gambar.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{Base_url}}/users/:acc_id/review/:id",
+							"host": [
+								"{{Base_url}}"
+							],
+							"path": [
+								"users",
+								":acc_id",
+								"review",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "acc_id",
+									"value": "US001"
+								},
+								{
+									"key": "id",
+									"value": "2"
+								}
+							]
+						},
+						"description": "Endpoint `updateReviews` digunakan untuk memperbarui ulasan yang sudah ada. Endpoint ini mengharapkan permintaan dengan metode HTTP PUT dan mengirimkan data yang ingin diperbarui dalam tubuh permintaan.\n\n**URL Endpoint**\n\n```\nPUT /updateReviews/:id\n\n```\n\n**Contoh Permintaan:**\n\n``` http\nPUT /updateReviews/123\nContent-Type: multipart/form-data\nrating=5\nreview=This game is absolutely fantastic!\nscreenshot=<file_data>\n\n```\n\n**Contoh Respon:**\n\n``` json\n{\n  \"message\": \"Review updated successfully\",\n  \"data\": {\n    \"id\": 123,\n    \"user_id\": 456,\n    \"game_id\": 789,\n    \"game_name\": \"Red Dead Redemption 2\",\n    \"rating\": 5,\n    \"review\": \"This game is absolutely fantastic!\",\n    \"screenshot\": \"screenshot.jpg\",\n    \"createdAt\": \"2023-06-20T12:34:56Z\",\n    \"updatedAt\": \"2023-06-22T08:15:42Z\"\n  }\n}\n\n```\n\n**Deskripsi Respon:**\n\nEndpoint ini akan memperbarui ulasan yang sudah ada dengan menggunakan data yang diberikan dalam tubuh permintaan. Respon akan berisi status 200 OK dengan objek JSON yang mencakup informasi ulasan yang diperbarui:\n\n- `message` (string): Pesan sukses yang menyatakan bahwa ulasan telah berhasil diperbarui.\n- `data` (objek): Objek yang berisi informasi tentang ulasan yang diperbarui.\n    - `id` (number): ID unik ulasan.\n    - `user_id` (number): ID pengguna yang membuat ulasan.\n    - `game_id` (number): ID permainan yang diulas.\n    - `game_name` (string): Nama permainan yang diulas.\n    - `rating` (number): Penilaian yang diberikan untuk permainan (1-5).\n    - `review` (string): Isi dari ulasan.\n    - `screenshot` (string): Nama file gambar tangkapan layar yang diperbarui (jika ada perubahan).\n    - `createdAt` (string): Tanggal dan waktu pembuatan ulasan.\n    - `updatedAt` (string): Tanggal dan waktu terakhir ulasan diperbarui.\n\n**Form Data Parameters:**\n\n- `rating` (integer, optional): Penilaian yang diberikan untuk permainan (1-5). Jika tidak diberikan, nilai penilaian akan tetap sama dengan sebelumnya.\n- `review` (string, optional): Isi ulasan yang ingin diperbarui. Jika tidak diberikan, isi ulasan akan tetap sama dengan sebelumnya.\n- `screenshot` (file, optional): File gambar tangkapan layar permainan yang ingin diperbarui.\n    \n\n**Kode Status Respon:**\n\n- `200 OK`: Permintaan berhasil dan ulasan telah berhasil diperbarui. Ulasan yang diperbarui akan disertakan dalam respon."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Review",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "access-token",
+								"value": "{{ACCESS_TOKEN}}",
+								"type": "text"
+							},
+							{
+								"key": "channel-id",
+								"value": "{{CHANNEL_ID}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{Base_url}}/users/:acc_id/review/:id",
+							"host": [
+								"{{Base_url}}"
+							],
+							"path": [
+								"users",
+								":acc_id",
+								"review",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "acc_id",
+									"value": "US001"
+								},
+								{
+									"key": "id",
+									"value": "2"
+								}
+							]
+						},
+						"description": "Endpoint `deleteReview` digunakan untuk menghapus ulasan yang ada. Endpoint ini mengharapkan permintaan dengan metode HTTP DELETE.\n\n**URL Endpoint**\n\n```\nDELETE /deleteReview/:id\n\n```\n\n**Contoh Permintaan:**\n\n``` http\nDELETE /deleteReview/123\n\n```\n\n**Contoh Respon:**\n\n``` json\n{\n  \"message\": \"Review deleted successfully\",\n  \"data\": {\n    \"id\": 123,\n    \"user_id\": 456,\n    \"game_id\": 789,\n    \"game_name\": \"Red Dead Redemption 2\",\n    \"rating\": 5,\n    \"review\": \"This game is absolutely fantastic!\",\n    \"screenshot\": \"screenshot.jpg\",\n    \"createdAt\": \"2023-06-20T12:34:56Z\",\n    \"updatedAt\": \"2023-06-22T08:15:42Z\"\n  }\n}\n\n```\n\n**Deskripsi Respon:**\n\nEndpoint ini akan menghapus ulasan yang ada berdasarkan ID ulasan yang diberikan dalam URL. Respon akan berisi status 200 OK dengan objek JSON yang mencakup informasi ulasan yang dihapus:\n\n- `message` (string): Pesan sukses yang menyatakan bahwa ulasan telah berhasil dihapus.\n- `data` (objek): Objek yang berisi informasi tentang ulasan yang dihapus sebelumnya.\n    - `id` (number): ID unik ulasan.\n    - `user_id` (number): ID pengguna yang membuat ulasan.\n    - `game_id` (number): ID permainan yang diulas.\n    - `game_name` (string): Nama permainan yang diulas.\n    - `rating` (number): Penilaian yang diberikan untuk permainan (1-5).\n    - `review` (string): Isi dari ulasan.\n    - `screenshot` (string): Nama file gambar tangkapan layar yang terlampir pada ulasan.\n    - `createdAt` (string): Tanggal dan waktu pembuatan ulasan.\n    - `updatedAt` (string): Tanggal dan waktu terakhir ulasan diperbarui sebelum dihapus.\n\n**Path Parameters:**\n\n- `id` (number): ID unik ulasan yang ingin dihapus.\n    \n\n**Kode Status Respon:**\n\n- `200 OK`: Permintaan berhasil dan ulasan telah berhasil dihapus. Informasi ulasan yang dihapus akan disertakan dalam respon."
+					},
+					"response": []
+				}
+			],
+			"description": "folder ini berisi tentang endpoint User"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "Base_url",
+			"value": "http://localhost:3000/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "USER_TOKEN",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "CHANNEL_TOKEN",
+			"value": ""
+		},
+		{
+			"key": "ACCESS_TOKEN",
+			"value": ""
+		},
+		{
+			"key": "CHANNEL_ID",
+			"value": ""
+		},
+		{
+			"key": "ACC_ID",
+			"value": ""
+		}
+	]
+}
