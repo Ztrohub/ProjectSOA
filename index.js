@@ -5,15 +5,17 @@ else {
     require('dotenv').config({ path: '.env.dev'})
 }
 
-const express = require('express')
+const express = require('express');
+const fs = require("fs");
 const app = express()
 const PORT = process.env.PORT
 const baseRouter = express.Router()
 const mainRouter = require('./src/routes')
 const { notFound, errorHandler } = require('./src/middlewares/ErrorHandling')
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+app.use(express.json());
+app.use("/assets", express.static("./img/public"));
+app.use(express.urlencoded({ extended: true }));
 
 // ROUTES
 mainRouter(baseRouter)
@@ -25,6 +27,16 @@ app.use(errorHandler)
 
 const initApp = async () => {
     try {
+        if (!fs.existsSync("img/uploads")) {
+            fs.mkdirSync("img/uploads"); 
+            console.log('Folder uploads created successfully.');
+        }
+
+        if (!fs.existsSync("img/public")) { 
+            fs.mkdirSync("img/public");
+            console.log('Folder public created successfully.');
+        }
+
         console.log('Connecting to database...')
         await require('./src/models').sequelize.sync()
         console.clear()

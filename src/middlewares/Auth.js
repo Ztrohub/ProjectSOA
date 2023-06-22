@@ -1,8 +1,21 @@
 const jwt = require('jsonwebtoken');
-const { Account, Channel }  = require('../models');
+const db = require('../models');
+const Sequelize = require('sequelize');
 const base64url = require('base64url');
 const bcrypt = require('bcrypt');
 const createError = require('http-errors');
+const multer = require("multer");
+const fs = require("fs");
+const upload = multer({
+    dest: "./img/uploads",
+    limits: { fileSize: 1000000 },
+    fileFilter: function (req, file, cb) {
+        if (file.mimetype != "image/png") {
+            return cb(new Error("Wrong file type"), null);
+        }
+        cb(null, true);
+        },
+});
 
 module.exports = {
     accountAuthen : async (req, res, next) => {
@@ -14,7 +27,7 @@ module.exports = {
         try {
             const decoded = jwt.verify(token, process.env.PRIVATE_KEY)
             
-            const account = await Account.findOne({
+            const account = await db.Account.findOne({
                 where: {
                     username: decoded.username
                 }
@@ -26,6 +39,7 @@ module.exports = {
             return next(createError.Unauthorized("Invalid token"))
         }
     },
+
     channelAuthen : async (req, res, next) => {
         if (!req.params.id) {
             return next(createError.BadRequest("Channel ID is required"))
@@ -38,7 +52,7 @@ module.exports = {
             return next(createError.Unauthorized("Invalid channel ID"))
         }
 
-        const channel = await Channel.findOne({
+        const channel = await db.Channel.findOne({
             where: {
                 id: id
             }
@@ -52,6 +66,7 @@ module.exports = {
 
         next()
     },
+
     channelAuthor : async (req, res, next) => {
         if (req.channel.account_username !== req.account.username) {
             return next(createError.Forbidden("You are not the owner of this channel"))
@@ -68,9 +83,9 @@ module.exports = {
             return next(createError.Unauthorized("Channel ID is required"))
         }
 
-        const channel = await Channel.findOne({
+        const channel = await db.Channel.findOne({
             where: {
-                id: channel_id
+                id: base64url.decode(channel_id) 
             }
         })
 
@@ -92,7 +107,6 @@ module.exports = {
     },
 
     userAuth: async (req, res, next) => {
-
         if (!req.params.acc_id) {
             return next(createError.BadRequest("User acc_id is required"))
         }
@@ -104,7 +118,7 @@ module.exports = {
                         acc_id: req.params.acc_id
                     },
                     {
-                        channel_id: req.channel
+                        channel_id: req.channel.id
                     }
                 ]
             }
@@ -118,5 +132,4 @@ module.exports = {
 
         next()
     }
-
 }

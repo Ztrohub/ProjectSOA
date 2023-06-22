@@ -1,11 +1,11 @@
 const { faker } = require('@faker-js/faker');
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
+const axios = require('axios');
 const joi = require('joi').extend(require('@joi/date'));
 const base64url = require('base64url');
 const Sequelize = require('sequelize');
 const db = require('../models');
-const sequelize = db.sequelize;
 const createError = require('http-errors');
 
 module.exports = {
@@ -169,12 +169,12 @@ module.exports = {
                 }
         })
     },
-    
+
     getReviews: async (req, res, next) => {
         const schema = joi.object({
             game_name: joi.string().optional(),
             game_id: joi.number().integer().optional(),
-            acc_id: joi.number().integer().optional(),
+            acc_id: joi.string().optional(),
         })
 
         try {
@@ -185,11 +185,53 @@ module.exports = {
         }
 
         if (!req.query.game_name && !req.query.game_id && !req.query.acc_id){
-            return next(createError.BadRequest('At least one of the following parameters is required: game_name, game_id, acc_id'))
+            const reviews = await db.Review.findAll({
+                include: {
+                    model: db.User,
+                    as: "user",
+                    where: {
+                        channel_id: req.channel.id
+                    }
+                } 
+            });
+
+            if (reviews.length === 0){
+                return next(createError.NotFound('No reviews found'))
+            }
+
+            return res.status(200).json({
+                message: 'Reviews retrieved successfully!',
+                data: {
+                    length: reviews.length,
+                    channel: {
+                        id: base64url(req.channel.id),
+                        name: req.channel.name,
+                    },
+                    reviews: await Promise.all(reviews.map(async (review) => {
+                        const user = await db.User.findOne({
+                            where: {
+                                id: review.user_id
+                            }
+                        })
+
+                        return {
+                            id: review.id,
+                            game_id: review.game_id,
+                            acc_id: user.acc_id,
+                            rating: review.rating,
+                            review: review.review,
+                            screenshot: review.screenshot == undefined ? "No Screenshot" : `https://domain/assets/${review.screenshot}`,
+                            created_at: review.created_at,
+                            updated_at: review.updated_at == undefined ? "Not updated yet" : review.updated_at,
+                            deleted_at: review.deleted_at == undefined ? "Not deleted yet" : review.deleted_at
+                        }
+                    }
+                    ))
+                }
+            }) 
         }
 
         let game_id;
-
         if (req.query.game_id) game_id = req.query.game_id
         else if (req.query.game_name) {
             const game = await axios.get('https://api.igdb.com/v4/games', {
@@ -197,20 +239,21 @@ module.exports = {
                     'Client-ID': process.env.IGDB_CLIENT_ID,
                     'Authorization': `Bearer ${process.env.IGDB_ACCESS_TOKEN}`
                 },
-                search: req.body.game_name,
-                fields: 'id,name',
-                limit: 5
-            })
+                params: {
+                    search: req.query.game_name,
+                    fields: "name,rating",
+                    limit: 1
+                }
+            });
 
             if (game.data.length === 0) {
                 return next(createError.BadRequest(`${req.body.game_name} is not found`))
             }
 
-            game_id = game.data[0].id
+            game_id = game.data[0].id;
         }
 
         let user_id;
-
         if (req.query.acc_id){
             const user = await db.User.findOne({
                 where: {
@@ -231,7 +274,6 @@ module.exports = {
 
             user_id = user.id
         }
-
 
         if (game_id && user_id){
             const reviews = await db.Review.findAll({
@@ -272,7 +314,7 @@ module.exports = {
                             acc_id: user.acc_id,
                             rating: review.rating,
                             review: review.review,
-                            screenshot: review.screenshot == undefined ? "No Screenshot" : `https:// ${review.screenshot}`,
+                            screenshot: review.screenshot == undefined ? "No Screenshot" : `https://domain/assets/${review.screenshot}`,
                             created_at: review.created_at,
                             updated_at: review.updated_at == undefined ? "Not updated yet" : review.updated_at,
                             deleted_at: review.deleted_at == undefined ? "Not deleted yet" : review.deleted_at
@@ -285,10 +327,14 @@ module.exports = {
             const reviews = await db.Review.findAll({
                 include: {
                     model: db.User,
+                    as: "user",
                     where: {
                         channel_id: req.channel.id
                     }
                 },
+                where: {
+                    game_id: game_id
+                }
             })
 
             if (reviews.length === 0){
@@ -316,7 +362,7 @@ module.exports = {
                             acc_id: user.acc_id,
                             rating: review.rating,
                             review: review.review,
-                            screenshot: review.screenshot == undefined ? "No Screenshot" : `https:// ${review.screenshot}`,
+                            screenshot: review.screenshot == undefined ? "No Screenshot" : `https://domain/assets/${review.screenshot}`,
                             created_at: review.created_at,
                             updated_at: review.updated_at == undefined ? "Not updated yet" : review.updated_at,
                             deleted_at: review.deleted_at == undefined ? "Not deleted yet" : review.deleted_at
@@ -357,7 +403,7 @@ module.exports = {
                             acc_id: user.acc_id,
                             rating: review.rating,
                             review: review.review,
-                            screenshot: review.screenshot == undefined ? "No Screenshot" : `https:// ${review.screenshot}`,
+                            screenshot: review.screenshot == undefined ? "No Screenshot" : `https://domain/assets/${review.screenshot}`,
                             created_at: review.created_at,
                             updated_at: review.updated_at == undefined ? "Not updated yet" : review.updated_at,
                             deleted_at: review.deleted_at == undefined ? "Not deleted yet" : review.deleted_at

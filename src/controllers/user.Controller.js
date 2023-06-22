@@ -2,10 +2,27 @@ const joi = require('joi').extend(require('@joi/date'));
 const createError = require('http-errors');
 const axios = require('axios');
 const db = require('../models');
+const sequelize = db.sequelize;
+const base64url = require('base64url');
+const Sequelize = require('sequelize');
+
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
+const upload = multer({
+    dest: "./img/uploads",
+    limits: { fileSize: 1000000 },
+    fileFilter: function (req, file, cb) {
+        if (file.mimetype != "image/png" && file.mimetype != "image/jpg" && file.mimetype != "image/jpeg") {
+            return cb(new Error("Wrong file type"), null);
+        }
+        cb(null, true);
+        },
+});
 
 module.exports = {
     createUsers: async (req, res, next) => {
-        const channel = req.channel
+        const channel = req.channel;
 
         const schema = joi.object({
             amount: joi.number().integer().min(1).optional(),
@@ -19,7 +36,6 @@ module.exports = {
         }
 
         const amount = req.body.amount || 1
-
         const userPrefix = channel.user_prefix
 
         const temp = await sequelize.query(`SELECT COUNT(*) FROM users WHERE channel_id = :channelId`, {
@@ -62,7 +78,6 @@ module.exports = {
             acc_id: joi.string().optional(),
         })
 
-
         try {
             await schema.validateAsync(req.query, {
                 abortEarly: false,
@@ -73,8 +88,7 @@ module.exports = {
             return next(error)
         }
 
-        const acc_id = req.query.acc_id
-
+        const acc_id = req.query.acc_id;
         if (!acc_id){
             const users = await channel.getUsers()
 
@@ -150,7 +164,8 @@ module.exports = {
     },
 
     deleteUser: async (req, res, next) => {
-        const user = req.user
+        const user = req.user;
+        const channel = req.channel;
 
         await user.destroy()
 
@@ -181,98 +196,138 @@ module.exports = {
     },
 
     createReview: async (req, res, next) => {
-        const schema = joi.object({
-            rating: joi.number().integer().min(1).max(5).required(),
-            review: joi.string().optional(),
-            game_name: joi.string().optional(),
-            game_id: joi.string().optional(),
-        })
-
-        try {
-            await schema.validateAsync(req.body)
-        } catch (error) {
-            if (error.isJoi === true) error.status = 422
-            return next(error)
-        }
-
-        if (!req.body.game_name && !req.body.game_id) {
-            return next(createError.BadRequest('game_name or game_id is required'))
-        }
-
-        let game_id = -1;
-
-        if (req.body.game_id){
-            game_id = req.body.game_id
-        } else {
-            const game = await axios.get('https://api.igdb.com/v4/games', {
-                headers: {
-                    'Client-ID': process.env.IGDB_CLIENT_ID,
-                    'Authorization': `Bearer ${process.env.IGDB_ACCESS_TOKEN}`
-                },
-                search: req.body.game_name,
-                fields: 'id,name',
-                limit: 5
+        upload.single("screenshot") (req, res, async function (err) {
+            const schema = joi.object({
+                rating: joi.number().integer().min(1).max(5).required(),
+                review: joi.string().optional(),
+                game_name: joi.string().optional(),
+                game_id: joi.string().optional(),
+                screenshot: joi.any().optional()
             })
 
-            if (game.data.length === 0) {
-                return next(createError.BadRequest(`${req.body.game_name} is not found`))
+            try {
+                await schema.validateAsync(req.body)
+            } catch (error) {
+                if (error.isJoi === true) error.status = 422
+                if(req.file) fs.unlinkSync(`./img/uploads/${req.file.filename}`);
+                return next(error)
             }
 
-            game_id = game.data[0].id
-        }
+            if (err) {
+                if(req.file) fs.unlinkSync(`./img/uploads/${req.file.filename}`);
+                return res.status(400).send({ ...err, msg: "wrong filetype" });
+            } else if (!req.body.game_name && !req.body.game_id) {
+                if(req.file) fs.unlinkSync(`./img/uploads/${req.file.filename}`);
+                return next(createError.BadRequest('game_name or game_id is required'))
+            }
+    
+            let game_id = -1;
+            if (req.body.game_id){
+                game_id = req.body.game_id
+            } else {
+                const game = await axios.get('https://api.igdb.com/v4/games', {
+                    headers: {
+                        'Client-ID': process.env.IGDB_CLIENT_ID,
+                        'Authorization': `Bearer ${process.env.IGDB_ACCESS_TOKEN}`
+                    },
+                    params: {
+                        search: req.body.game_name,
+                        fields: "name,rating",
+                        limit: 1
+                    }
+                })
+    
+                if (game.data.length === 0) {
+                    if(req.file) fs.unlinkSync(`./img/uploads/${req.file.filename}`);
+                    return next(createError.BadRequest(`${req.body.game_name} is not found`))
+                }
+    
+                game_id = game.data[0].id
+            }
 
-        const review = await db.Review.create({
-            user_id: req.user.id,
-            game_id: game_id,
-            rating: req.body.rating,
-            review: req.body.review,
-            screenshot: req.file ? req.file.filename : null
-        })
+            const reviewNumber = await db.Review.findAndCountAll();
+            const myFilename = (req.file) ? `${reviewNumber.count + 1}${path.extname(req.file.originalname)}` : null;
+            if(req.file){
+                fs.renameSync(
+                    `./img/uploads/${req.file.filename}`,
+                    `./img/public/${myFilename}`
+                );
+            }
 
-        return res.status(201).json({
-            message: 'Review created successfully',
-            data: review
-        })
+            const review = await db.Review.create({
+                user_id: req.user.id,
+                game_id: game_id,
+                rating: req.body.rating,
+                review: req.body.review,
+                screenshot: myFilename
+            })
+
+            return res.status(201).json({
+                message: 'Review created successfully',
+                data: review
+            })
+        });
     },
 
-    // need to look
     updateReviews: async (req, res, next) => {
-        const schema = joi.object({
-            rating: joi.number().integer().min(1).max(5).optional(),
-            review: joi.string().optional(),
-        })
-
-        try {
-            await schema.validateAsync(req.body)
-        } catch (error){
-            if (error.isJoi === true) error.status = 422
-            return next(error)
-        }
-
-        const review = await db.Review.findOne({
-            where: {
-                id: req.params.id,
-                user_id: req.user.id
+        upload.single("screenshot") (req, res, async function (err) {
+            const schema = joi.object({
+                rating: joi.number().integer().min(1).max(5).optional(),
+                review: joi.string().optional(),
+                screenshot: joi.any().optional()
+            })
+    
+            try {
+                await schema.validateAsync(req.body)
+            } catch (error){
+                if (error.isJoi === true) error.status = 422
+                return next(error)
             }
-        })
 
-        if (!review) {
-            return next(createError.NotFound('Review not found'))
-        }
+            if (err) {
+                if(req.file) fs.unlinkSync(`./img/uploads/${req.file.filename}`);
+                return res.status(400).send({ ...err, msg: "wrong filetype" });
+            }
 
-        await review.update({
-            rating: req.body.rating || review.rating,
-            review: req.body.review || review.review,
-            screenshot: req.file ? req.file.filename : review.screenshot
-        })
+            const review = await db.Review.findOne({
+                where: {
+                    id: req.params.id,
+                    user_id: req.user.id
+                }
+            })
+    
+            if (!review) {
+                if(req.file) fs.unlinkSync(`./img/uploads/${req.file.filename}`);
+                return next(createError.NotFound('Review not found'))
+            }
 
-        return res.status(200).json({
-            message: 'Review updated successfully',
-            data: review
-        })
+            let myFilename = review.screenshot;
+            if(req.file){
+                if(myFilename == null){
+                    myFilename = `${review.id}${path.extname(req.file.originalname)}`
+                } else {
+                    fs.unlinkSync(`./img/public/${myFilename}`);
+                }
+
+                fs.renameSync(
+                    `./img/uploads/${req.file.filename}`,
+                    `./img/public/${myFilename}`
+                );
+            }
+    
+            await review.update({
+                rating: req.body.rating || review.rating,
+                review: req.body.review || review.review,
+                screenshot: myFilename
+            })
+    
+            return res.status(200).json({
+                message: 'Review updated successfully',
+                data: review
+            })
+        });
     },
 
-    // need to look
     deleteReview:  async (req, res, next) => {
         const review = await db.Review.findOne({
             where: {
@@ -285,6 +340,7 @@ module.exports = {
             return next(createError.NotFound('Review not found'))
         }
 
+        if(review.screenshot != null) fs.unlinkSync(`./img/public/${review.screenshot}`);
         await review.destroy()
 
         return res.status(200).json({
@@ -292,5 +348,4 @@ module.exports = {
             data: review
         })
     },
-    
 }
