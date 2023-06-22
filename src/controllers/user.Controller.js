@@ -226,7 +226,10 @@ module.exports = {
             if (req.body.game_id){
                 game_id = req.body.game_id
             } else {
-                const game = await axios.get('https://api.igdb.com/v4/games', {
+
+                let game;
+                try {
+                 game = await axios.get('https://api.igdb.com/v4/games', {
                     headers: {
                         'Client-ID': process.env.IGDB_CLIENT_ID,
                         'Authorization': `Bearer ${process.env.IGDB_ACCESS_TOKEN}`
@@ -237,6 +240,9 @@ module.exports = {
                         limit: 1
                     }
                 })
+                } catch (error) {
+                    return next(createError.InternalServerError("Error while fetching game data"))
+                }
     
                 if (game.data.length === 0) { 
                     if(req.file) fs.unlinkSync(`./img/uploads/${req.file.filename}`);

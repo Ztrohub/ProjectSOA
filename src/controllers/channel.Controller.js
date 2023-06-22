@@ -235,18 +235,23 @@ module.exports = {
         let game_id;
         if (req.query.game_id) game_id = req.query.game_id
         else if (req.query.game_name) {
-            const game = await axios.get('https://api.igdb.com/v4/games', {
-                headers: {
-                    'Client-ID': process.env.IGDB_CLIENT_ID,
-                    'Authorization': `Bearer ${process.env.IGDB_ACCESS_TOKEN}`
-                },
-                params: {
-                    search: req.query.game_name,
-                    fields: "name,rating",
-                    limit: 1
-                }
-            });
-
+            let game;
+            try {
+                game = await axios.get('https://api.igdb.com/v4/games', {
+                    headers: {
+                        'Client-ID': process.env.IGDB_CLIENT_ID,
+                        'Authorization': `Bearer ${process.env.IGDB_ACCESS_TOKEN}`
+                    },
+                    params: {
+                        search: req.query.game_name,
+                        fields: "name,rating",
+                        limit: 1
+                    }
+                });
+            } catch (error) {
+                return next(createError.InternalServerError("Error while fetching game data"))
+            }
+            
             if (game.data.length === 0) {
                 return next(createError.BadRequest(`${req.body.game_name} is not found`))
             }
