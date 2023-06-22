@@ -19,6 +19,9 @@
     "Review",
     "Game"
   ],
+  "engines": {
+    "node": "16.x"
+  },
   "author": "GroupUwU",
   "license": "ISC",
   "bugs": {
