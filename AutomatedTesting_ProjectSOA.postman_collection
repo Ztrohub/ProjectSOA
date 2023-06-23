@@ -1,0 +1,1449 @@
+{
+	"info": {
+		"_postman_id": "491ea67e-9b9a-4042-aeed-94b78d5602eb",
+		"name": "ProjectSOA",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24524579",
+		"_collection_link": "https://bold-shuttle-104397.postman.co/workspace/ProjectSOA~2a09430b-f11b-46c0-a4df-a8b5e0c2f5ad/collection/24524579-491ea67e-9b9a-4042-aeed-94b78d5602eb?action=share&creator=24524579&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "Account",
+			"item": [
+				{
+					"name": "Register account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"function makeTest(name, body, test){\r",
+									"    pm.sendRequest({\r",
+									"        url: `${pm.collectionVariables.get(\"BASE_URL\")}/accounts/register`,\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Accept': 'application/json',\r",
+									"            'Content-Type': 'application/x-www-form-urlencoded',\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'urlencoded',\r",
+									"            urlencoded: utils.convertObjectToArray(body)\r",
+									"        }\r",
+									"    }, function(err, res){\r",
+									"        pm.test(name, () => {\r",
+									"            test(res, body)\r",
+									"        });\r",
+									"    })\r",
+									"}\r",
+									"\r",
+									"pm.test(\"[VALID] Register with valid field.\", () => {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    const formData = pm.request.body.urlencoded.toObject();\r",
+									"    \r",
+									"    pm.response.to.have.status(201);\r",
+									"    pm.expect(responseJson.data.username).to.eql(formData.username);\r",
+									"    pm.expect(responseJson.data.email).to.eql(formData.email);\r",
+									"    pm.expect(responseJson.data.name).to.eql(formData.name);\r",
+									"    pm.expect(responseJson.data.account_type).to.eql(\"free\");\r",
+									"    pm.expect(responseJson.data.credit).to.eql(0);\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[INVALID] Register with valid username but already exists.\", {\r",
+									"    \"username\": \"garitdewana\",\r",
+									"    \"email\": \"windahbasudara@gmail.com\",\r",
+									"    \"name\": \"Windah Basudara\",\r",
+									"    \"password\": \"1234567890\",\r",
+									"    \"password_confirmation\": \"1234567890\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(409);\r",
+									"})\r",
+									"\r",
+									"makeTest(\"[INVALID] Register with valid email but already exists.\", {\r",
+									"    \"username\": \"windahbasudara\",\r",
+									"    \"email\": \"garitdewana@gmail.com\",\r",
+									"    \"name\": \"Windah Basudara\",\r",
+									"    \"password\": \"1234567890\",\r",
+									"    \"password_confirmation\": \"1234567890\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(409);\r",
+									"})\r",
+									"\r",
+									"makeTest(\"[INVALID] Register with invalid password by making them non-matching.\", {\r",
+									"    \"username\": \"windahbasudara\",\r",
+									"    \"email\": \"windahbasudara@gmail.com\",\r",
+									"    \"name\": \"Windah Basudara\",\r",
+									"    \"password\": \"1234567890\",\r",
+									"    \"password_confirmation\": \"0987654321\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(422);\r",
+									"})\r",
+									"\r",
+									"makeTest(\"[VALID] Register with valid field for windahbasudara.\", {\r",
+									"    \"username\": \"windahbasudara\",\r",
+									"    \"email\": \"windahbasudara@gmail.com\",\r",
+									"    \"name\": \"Windah Basudara\",\r",
+									"    \"password\": \"1234567890\",\r",
+									"    \"password_confirmation\": \"1234567890\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(201);\r",
+									"    pm.expect(res.json().data.username).to.eql(body.username);\r",
+									"    pm.expect(res.json().data.email).to.eql(body.email);\r",
+									"    pm.expect(res.json().data.name).to.eql(body.name);\r",
+									"    pm.expect(res.json().data.account_type).to.eql(\"free\");\r",
+									"    pm.expect(res.json().data.credit).to.eql(0);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "garitdewana",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "garitdewana@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "Garit Dewana",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "1234567890",
+									"type": "text"
+								},
+								{
+									"key": "password_confirmation",
+									"value": "1234567890",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/accounts/register",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"accounts",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"function makeTest(name, body, test){\r",
+									"    pm.sendRequest({\r",
+									"        url: `${pm.collectionVariables.get(\"BASE_URL\")}/accounts/login`,\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Accept': 'application/json',\r",
+									"            'Content-Type': 'application/x-www-form-urlencoded',\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'urlencoded',\r",
+									"            urlencoded: utils.convertObjectToArray(body)\r",
+									"        }\r",
+									"    }, function(err, res){\r",
+									"        pm.test(name, () => {\r",
+									"            test(res, body)\r",
+									"        });\r",
+									"    })\r",
+									"}\r",
+									"\r",
+									"pm.test(\"[VALID] Login with valid credential (premium).\", () => {\r",
+									"    const responseJson = pm.response.json();\r",
+									"\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.set(\"PREMIUM_JWT_TOKEN\", responseJson.data.token);\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[INVALID] Login with wrong password.\", {\r",
+									"    \"username\": \"garitdewana\",\r",
+									"    \"password\": \"ruifv4vnn8vn34n8n\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[INVALID] Login with unregister username.\", {\r",
+									"    \"username\": \"cetarmembahana\",\r",
+									"    \"password\": \"1234567890\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[VALID] Login to registered user (free).\", {\r",
+									"    \"username\": \"windahbasudara\",\r",
+									"    \"password\": \"1234567890\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(200);\r",
+									"    pm.collectionVariables.set(\"FREE_JWT_TOKEN\", res.json().data.token);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "garitdewana",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "1234567890",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/accounts/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"accounts",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"function makeTest(name, body, test){\r",
+									"    pm.sendRequest({\r",
+									"        url: `${pm.collectionVariables.get(\"BASE_URL\")}/accounts`,\r",
+									"        method: 'PATCH',\r",
+									"        header: {\r",
+									"            'Accept': 'application/json',\r",
+									"            'Content-Type': 'application/x-www-form-urlencoded',\r",
+									"            'x-auth-token': pm.collectionVariables.get(\"PREMIUM_JWT_TOKEN\"),\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'urlencoded',\r",
+									"            urlencoded: utils.convertObjectToArray(body)\r",
+									"        }\r",
+									"    }, function(err, res){\r",
+									"        pm.test(name, () => {\r",
+									"            test(res, body)\r",
+									"        });\r",
+									"    })\r",
+									"}\r",
+									"\r",
+									"pm.test(\"[VALID] Update email with valid format.\", () => {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    const formData = pm.request.body.urlencoded.toObject();\r",
+									"    \r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.data.email).to.eql(formData.email);\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[INVALID] Update user email with invalid format.\", {\r",
+									"    \"email\": \"smeinarilustrasi@gmail\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(422);\r",
+									"})\r",
+									"\r",
+									"makeTest(\"[INVALID] Update user email that has been taken by someone else.\", {\r",
+									"    \"email\": \"windahbasudara@gmail.com\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(409);\r",
+									"})\r",
+									"\r",
+									"makeTest(\"[VALID] Update name user with valid format.\", {\r",
+									"    \"name\": \"Garit Di Pulau Dewata\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(200);\r",
+									"    pm.expect(res.json().data.name).to.eql(body.name);\r",
+									"})\r",
+									"\r",
+									"makeTest(\"[VALID] Update user password with valid format.\", {\r",
+									"    \"password\": \"87654321\",\r",
+									"    \"password_confirmation\": \"87654321\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(200);\r",
+									"})\r",
+									"\r",
+									"makeTest(\"[INVALID] Update password by making them non-matching.\", {\r",
+									"    \"password\": \"87654321\",\r",
+									"    \"password_confirmation\": \"12345678\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(422);\r",
+									"})\r",
+									"\r",
+									"makeTest(\"[INVALID] Update password with 7 characters only.\", {\r",
+									"    \"password\": \"1234567\",\r",
+									"    \"password_confirmation\": \"1234567\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(422);\r",
+									"})\r",
+									"\r",
+									"makeTest(\"[INVALID] Update password with minimum 33 characters.\", {\r",
+									"    \"password\": \"123456789012345678901234567890123\",\r",
+									"    \"password_confirmation\": \"123456789012345678901234567890123\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(422);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{PREMIUM_JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "dewanagarit@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "Garit Dewana",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "12345678",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "confirm_password",
+									"value": "12345678",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/accounts/",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"accounts",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Topup account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"function makeTest(name, body, test){\r",
+									"    pm.sendRequest({\r",
+									"        url: `${pm.collectionVariables.get(\"BASE_URL\")}/accounts/topup`,\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Accept': 'application/json',\r",
+									"            'Content-Type': 'application/x-www-form-urlencoded',\r",
+									"            'x-auth-token': pm.collectionVariables.get(\"PREMIUM_JWT_TOKEN\"),\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'urlencoded',\r",
+									"            urlencoded: utils.convertObjectToArray(body)\r",
+									"        }\r",
+									"    }, function(err, res){\r",
+									"        pm.test(name, () => {\r",
+									"            test(res, body)\r",
+									"        });\r",
+									"    })\r",
+									"}\r",
+									"\r",
+									"pm.test(\"[VALID] Topup 200k to current login user.\", () => {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    \r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.data.credit).to.eql(\"200000\");\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[INVALID] Topup account with invalid format credit.\", {\r",
+									"    \"credit\": \"ABCDEF123\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(422);\r",
+									"})\r",
+									"\r",
+									"makeTest(\"[INVALID] Topup less than 10k to current login user.\", {\r",
+									"    \"credit\": \"5000\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(422);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{PREMIUM_JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "credit",
+									"value": "200000",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/accounts/topup",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"accounts",
+								"topup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upgrade account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"function makeTest(name, body, test){\r",
+									"    pm.sendRequest({\r",
+									"        url: `${pm.collectionVariables.get(\"BASE_URL\")}/accounts/upgrade`,\r",
+									"        method: 'GET',\r",
+									"        header: {\r",
+									"            'Accept': 'application/json',\r",
+									"            'Content-Type': 'application/x-www-form-urlencoded',\r",
+									"            'x-auth-token': pm.collectionVariables.get(\"PREMIUM_JWT_TOKEN\"),\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'urlencoded',\r",
+									"            urlencoded: utils.convertObjectToArray(body)\r",
+									"        }\r",
+									"    }, function(err, res){\r",
+									"        pm.test(name, () => {\r",
+									"            test(res, body)\r",
+									"        });\r",
+									"    })\r",
+									"}\r",
+									"\r",
+									"pm.test(\"[VALID] Upgrade account to premium.\", () => {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    \r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.data.account_type).to.eql(\"premium\");\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[INVALID] Upgrade account to premium while it's already premium.\", {}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(403);\r",
+									"})\r",
+									"\r",
+									"makeTest(\"[INVALID] Upgrade account to premium with insufficient balance.\", {}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(403);\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{PREMIUM_JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/accounts/upgrade",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"accounts",
+								"upgrade"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"function makeTest(name, body, test){\r",
+									"    pm.sendRequest({\r",
+									"        url: `${pm.collectionVariables.get(\"BASE_URL\")}/accounts`,\r",
+									"        method: 'GET',\r",
+									"        header: {\r",
+									"            'Accept': 'application/json',\r",
+									"            'Content-Type': 'application/x-www-form-urlencoded',\r",
+									"            'x-auth-token': body.jwt,\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'urlencoded',\r",
+									"            urlencoded: utils.convertObjectToArray(body)\r",
+									"        }\r",
+									"    }, function(err, res){\r",
+									"        pm.test(name, () => {\r",
+									"            test(res, body)\r",
+									"        });\r",
+									"    })\r",
+									"}\r",
+									"\r",
+									"pm.test(\"[VALID] Get current user info with valid JWT.\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[INVALID] Get current user info with invalid JWT.\", {\r",
+									"    \"body\": \"evbvd2hwehfhhehfjhjsdhfj\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(401);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{PREMIUM_JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/accounts",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"accounts"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Channel",
+			"item": [
+				{
+					"name": "Create channel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"function makeTest(name, body, test){\r",
+									"    pm.sendRequest({\r",
+									"        url: `${pm.collectionVariables.get(\"BASE_URL\")}/channels`,\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Accept': 'application/json',\r",
+									"            'Content-Type': 'application/x-www-form-urlencoded',\r",
+									"            'x-auth-token': pm.collectionVariables.get(\"FREE_JWT_TOKEN\")\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'urlencoded',\r",
+									"            urlencoded: utils.convertObjectToArray(body)\r",
+									"        }\r",
+									"    }, function(err, res){\r",
+									"        pm.test(name, () => {\r",
+									"            test(res, body)\r",
+									"        });\r",
+									"    })\r",
+									"}\r",
+									"\r",
+									"pm.test(\"[INVALID] Create new channel with invalid user_prefix format. \", () => {\r",
+									"    pm.response.to.have.status(422);\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[VALID] Create new channel using free account.\", {\r",
+									"    \"name\": \"GTA VI RELEASE INFO\",\r",
+									"    \"user_prefix\": \"US###\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(201);\r",
+									"    pm.expect(res.json().data.name).to.eql(body.name);\r",
+									"    pm.expect(res.json().data.user_prefix).to.eql(body.user_prefix);\r",
+									"\r",
+									"    pm.collectionVariables.set(\"CHANNEL_ID\", res.json().data.id);\r",
+									"    pm.collectionVariables.set(\"ACCESS_TOKEN_CHANNEL\", res.json().data.access_token);\r",
+									"\r",
+									"    setTimeout(makeTest(\"[INVALID] Create new channel using free account but hit a limit.\", {\r",
+									"            \"name\": \"Bakso Simulator\"\r",
+									"        }, (res, body)=> {\r",
+									"            pm.expect(res.code).to.eql(403);\r",
+									"    }), 500)\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{FREE_JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "Game ajojing ala ajojing",
+									"type": "text"
+								},
+								{
+									"key": "user_prefix",
+									"value": "USXXX",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/channels/",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"channels",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generate access token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"function makeTest(name, body, test){\r",
+									"    pm.sendRequest({\r",
+									"        url: `${pm.collectionVariables.get(\"BASE_URL\")}/channels/${body.id_channel}/generate-token`,\r",
+									"        method: 'GET',\r",
+									"        header: {\r",
+									"            'Accept': 'application/json',\r",
+									"            'Content-Type': 'application/x-www-form-urlencoded',\r",
+									"            'x-auth-token': pm.collectionVariables.get(\"FREE_JWT_TOKEN\")\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'urlencoded',\r",
+									"            urlencoded: utils.convertObjectToArray(body)\r",
+									"        }\r",
+									"    }, function(err, res){\r",
+									"        pm.test(name, () => {\r",
+									"            test(res, body)\r",
+									"        });\r",
+									"    })\r",
+									"}\r",
+									"\r",
+									"pm.test(\"[VALID] Generate access token from valid id channel.\", () => {\r",
+									"    const responseJson = pm.response.json();\r",
+									"\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.set(\"ACCESS_TOKEN_CHANNEL\", responseJson.data.access_token);\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[INVALID] Generate access token from invalid id channel.\", {\r",
+									"    \"id_channel\": \"eminemisrapgod\",\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(404);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{FREE_JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/channels/:id/generate-token",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"channels",
+								":id",
+								"generate-token"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{CHANNEL_ID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get channel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"function makeTest(name, body, test){\r",
+									"    const nameParam = (body.name) ? `name=${body.name}` : \"\";\r",
+									"    const idParam = (body.id) ? `id=${body.id}` : \"\";\r",
+									"\r",
+									"    pm.sendRequest({\r",
+									"        url: `${pm.collectionVariables.get(\"BASE_URL\")}/channels?${nameParam}&${idParam}`,\r",
+									"        method: 'GET',\r",
+									"        header: {\r",
+									"            'Accept': 'application/json',\r",
+									"            'Content-Type': 'application/x-www-form-urlencoded',\r",
+									"            'x-auth-token': pm.collectionVariables.get(\"FREE_JWT_TOKEN\")\r",
+									"        }\r",
+									"    }, function(err, res){\r",
+									"        pm.test(name, () => {\r",
+									"            test(res, body)\r",
+									"        });\r",
+									"    })\r",
+									"}\r",
+									"\r",
+									"pm.test(\"[VALID] Get all channel.\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[VALID] Get channel by name.\", {\r",
+									"    \"name\": \"GTA\",\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[INVALID] Get channel by name that not in database.\", {\r",
+									"    \"name\": \"mie goreng busuk\",\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[INVALID] Get channel by name and ID.\", {\r",
+									"    \"name\": \"nasi goreng jawa\",\r",
+									"    \"id\": \"blabla\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(422);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{FREE_JWT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/channels",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"channels"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Create user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"function makeTest(name, body, test){\r",
+									"    const chan_id = (body.id_channel) ? body.id_channel : pm.collectionVariables.get(\"CHANNEL_ID\");\r",
+									"\r",
+									"    pm.sendRequest({\r",
+									"        url: `${pm.collectionVariables.get(\"BASE_URL\")}/users`,\r",
+									"        method: 'POST',\r",
+									"        header: {\r",
+									"            'Accept': 'application/json',\r",
+									"            'Content-Type': 'application/x-www-form-urlencoded',\r",
+									"            'channel-id': chan_id,\r",
+									"            'access-token': pm.collectionVariables.get(\"ACCESS_TOKEN_CHANNEL\")\r",
+									"        },\r",
+									"        body: {\r",
+									"            mode: 'urlencoded',\r",
+									"            urlencoded: utils.convertObjectToArray(body)\r",
+									"        }\r",
+									"    }, function(err, res){\r",
+									"        pm.test(name, () => {\r",
+									"            test(res, body)\r",
+									"        });\r",
+									"    })\r",
+									"}\r",
+									"\r",
+									"pm.test(\"[VALID] Create new users for given channel ID.\", () => {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    \r",
+									"    pm.response.to.have.status(201);\r",
+									"    pm.expect(responseJson.data).to.have.all.keys(\r",
+									"        \"channel_id\", \r",
+									"        \"channel_name\", \r",
+									"        \"user_prefix\", \r",
+									"        \"user_count\", \r",
+									"        \"created_user_count\", \r",
+									"        \"created_user\"\r",
+									"    );\r",
+									"\r",
+									"    pm.collectionVariables.set(\"ACC_ID\", responseJson.data.created_user.split(\", \")[0]);\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[INVALID] Create new users with invalid id channel.\", {\r",
+									"    \"id_channel\": \"eminemisrapgod\",\r",
+									"    \"amount\": 7\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[INVALID] Create new users with invalid amount type.\", {\r",
+									"    \"id_channel\": pm.collectionVariables.get(\"CHANNEL_ID\"),\r",
+									"    \"amount\": \"tehpoci\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(422);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "channel-id",
+								"value": "{{CHANNEL_ID}}",
+								"type": "text"
+							},
+							{
+								"key": "access-token",
+								"value": "{{ACCESS_TOKEN_CHANNEL}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "amount",
+									"value": "3",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"function makeTest(name, body, test){\r",
+									"    const acc_id = (body.acc_id) ? `?acc_id=${body.acc_id}` : \"\";\r",
+									"\r",
+									"    pm.sendRequest({\r",
+									"        url: `${pm.collectionVariables.get(\"BASE_URL\")}/users${acc_id}`,\r",
+									"        method: 'GET',\r",
+									"        header: {\r",
+									"            'Accept': 'application/json',\r",
+									"            'Content-Type': 'application/x-www-form-urlencoded',\r",
+									"            'channel-id': pm.collectionVariables.get(\"CHANNEL_ID\"),\r",
+									"            'access-token': pm.collectionVariables.get(\"ACCESS_TOKEN_CHANNEL\")\r",
+									"        }\r",
+									"    }, function(err, res){\r",
+									"        pm.test(name, () => {\r",
+									"            test(res, body)\r",
+									"        });\r",
+									"    })\r",
+									"}\r",
+									"\r",
+									"pm.test(\"[VALID] Get user from given acc_id.\", () => {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    \r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.data).to.have.all.keys(\r",
+									"        \"channel_id\", \r",
+									"        \"channel_name\", \r",
+									"        \"user_prefix\", \r",
+									"        \"user_count\",\r",
+									"        \"users\"\r",
+									"    );\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[INVALID] Get user from invalid acc_id.\", {\r",
+									"    \"acc_id\": \"DSJHD\"\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[VALID] Get all user with sending acc_id.\", {\r",
+									"    \"acc_id\": pm.collectionVariables.get(\"ACC_ID\"),\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(200);\r",
+									"    pm.expect(res.json().data).to.have.all.keys(\r",
+									"        \"channel_id\", \r",
+									"        \"channel_name\", \r",
+									"        \"user_prefix\", \r",
+									"        \"user_count\",\r",
+									"        \"user\"\r",
+									"    );\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "channel-id",
+								"value": "{{CHANNEL_ID}}",
+								"type": "text"
+							},
+							{
+								"key": "access-token",
+								"value": "{{ACCESS_TOKEN_CHANNEL}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/users",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create review",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"[VALID] Create new review.\", () => {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "access-token",
+								"value": "{{ACCESS_TOKEN_CHANNEL}}",
+								"type": "text"
+							},
+							{
+								"key": "channel-id",
+								"value": "{{CHANNEL_ID}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "rating",
+									"value": "4",
+									"type": "text"
+								},
+								{
+									"key": "review",
+									"value": "Wow bagus sekali!!! Saya nangis lohhh",
+									"type": "text"
+								},
+								{
+									"key": "game_name",
+									"value": "gta",
+									"type": "text"
+								},
+								{
+									"key": "screenshot",
+									"type": "file",
+									"src": "/C:/Users/itsme/OneDrive/Pictures/ZOOM/1d0.jpg",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/:acc_id/review",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								":acc_id",
+								"review"
+							],
+							"variable": [
+								{
+									"key": "acc_id",
+									"value": "{{ACC_ID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update reviews",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"[VALID] Update review.\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "access-token",
+								"value": "{{ACCESS_TOKEN_CHANNEL}}",
+								"type": "text"
+							},
+							{
+								"key": "channel-id",
+								"value": "{{CHANNEL_ID}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "rating",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "review",
+									"value": "Apaan tuh",
+									"type": "text"
+								},
+								{
+									"key": "screenshot",
+									"type": "file",
+									"src": "/C:/Users/itsme/OneDrive/Pictures/ZOOM/1d0.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/users/:acc_id/review/:id",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								":acc_id",
+								"review",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "acc_id",
+									"value": "{{ACC_ID}}"
+								},
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all reviews from channel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"[VALID] Get all review.\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "access-token",
+								"value": "{{ACCESS_TOKEN_CHANNEL}}",
+								"type": "text"
+							},
+							{
+								"key": "channel-id",
+								"value": "{{CHANNEL_ID}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/channels/reviews?game_name=gta&acc_id=US001",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"channels",
+								"reviews"
+							],
+							"query": [
+								{
+									"key": "game_name",
+									"value": "gta"
+								},
+								{
+									"key": "acc_id",
+									"value": "US001"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete review",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"[VALID] Delete review.\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "access-token",
+								"value": "{{ACCESS_TOKEN_CHANNEL}}",
+								"type": "text"
+							},
+							{
+								"key": "channel-id",
+								"value": "{{CHANNEL_ID}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/users/:acc_id/review/:id",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								":acc_id",
+								"review",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "acc_id",
+									"value": "{{ACC_ID}}"
+								},
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"function makeTest(name, body, test){\r",
+									"    const acc_id = body.acc_id;\r",
+									"    const chan_id = (body.id_channel) ? body.id_channel : pm.collectionVariables.get(\"CHANNEL_ID\");\r",
+									"\r",
+									"    pm.sendRequest({\r",
+									"        url: `${pm.collectionVariables.get(\"BASE_URL\")}/users/${acc_id}`,\r",
+									"        method: 'DELETE',\r",
+									"        header: {\r",
+									"            'Accept': 'application/json',\r",
+									"            'Content-Type': 'application/x-www-form-urlencoded',\r",
+									"            'channel-id': chan_id,\r",
+									"            'access-token': pm.collectionVariables.get(\"ACCESS_TOKEN_CHANNEL\")\r",
+									"        }\r",
+									"    }, function(err, res){\r",
+									"        pm.test(name, () => {\r",
+									"            test(res, body)\r",
+									"        });\r",
+									"    })\r",
+									"}\r",
+									"\r",
+									"pm.test(\"[VALID] Delete user from given acc_id.\", () => {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    \r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.data).to.have.all.keys(\r",
+									"        \"channel_id\",\r",
+									"        \"channel_name\",\r",
+									"        \"user_prefix\",\r",
+									"        \"user_count\",\r",
+									"        \"user\"\r",
+									"    );\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[INVALID] Delete user from invalid id channel.\", {\r",
+									"    \"id_channel\": \"eminemisrapgod\",\r",
+									"    \"acc_id\": pm.collectionVariables.get(\"ACC_ID\")\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(404);\r",
+									"});\r",
+									"\r",
+									"makeTest(\"[INVALID] Delete user from invalid acc_id.\", {\r",
+									"    \"id_channel\": pm.collectionVariables.get(\"CHANNEL_ID\"),\r",
+									"    \"acc_id\": 0\r",
+									"}, (res, body)=> {\r",
+									"    pm.expect(res.code).to.eql(404);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "channel-id",
+								"value": "{{CHANNEL_ID}}",
+								"type": "text"
+							},
+							{
+								"key": "access-token",
+								"value": "{{ACCESS_TOKEN_CHANNEL}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/users/:acc_id",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"users",
+								":acc_id"
+							],
+							"variable": [
+								{
+									"key": "acc_id",
+									"value": "{{ACC_ID}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"utils = {",
+					"    convertObjectToArray(obj) {",
+					"    const convertedArray = [];",
+					"    for (const [key, value] of Object.entries(obj)) {",
+					"        convertedArray.push({",
+					"        key: key,",
+					"        value: value,",
+					"        disabled: false",
+					"        });",
+					"    }",
+					"    return convertedArray;",
+					"    }",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "http://localhost:3000/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "PREMIUM_JWT_TOKEN",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "CHANNEL_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "FREE_JWT_TOKEN",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "ACCESS_TOKEN_CHANNEL",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "ACC_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "JWT_TOKEN",
+			"value": ""
+		}
+	]
+}
